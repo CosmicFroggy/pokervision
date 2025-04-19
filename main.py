@@ -14,12 +14,7 @@ class App:
 
 		# create menu bar
 		self.menu_bar = tk.Menu(self.root)
-
-		self.settings_menu = tk.Menu(self.menu_bar, tearoff=0)
-		self.settings_menu.add_command(label="Camera")
-		self.settings_menu.add_command(label="Clustering")
-		self.menu_bar.add_cascade(menu=self.settings_menu, label="Settings")
-
+		self.menu_bar.add_command(label="Settings")
 		self.root.config(menu=self.menu_bar)
 
 		# get camera feed
