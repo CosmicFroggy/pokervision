@@ -20,6 +20,18 @@ class App:
 		# get camera feed
 		self.cam = cv2.VideoCapture(0)
 
+		# camera settings TODO: pull these from config file
+		self.cam_settings = {
+			cv2.CAP_PROP_AUTOFOCUS : tk.IntVar(value=0),
+			cv2.CAP_PROP_FOCUS : tk.IntVar(value=100),
+			cv2.CAP_PROP_BRIGHTNESS : tk.IntVar(value=100)
+		}
+		self.update_cam_settings() # init these settings
+
+	def update_cam_settings(self):
+		for setting, value in self.cam_settings.items():
+			self.cam.set(setting, value.get())
+
 	def open_settings_window(self):
 		# vv disable settings button
 		self.menu_bar.entryconfig("Settings", state="disabled") 
