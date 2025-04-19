@@ -39,8 +39,18 @@ class App:
 		# vv reenable settings button on window close
 		settings_window.protocol("WM_DELETE_WINDOW", 
 			lambda: self.close_settings_window(settings_window))
+		
 		settings_window.title("Settings")
 		settings_window.geometry("200x600")
+
+		# settings to be configured
+		tk.Label(settings_window, text="Focus").pack()
+		tk.Scale(settings_window, from_=0, to=255, 
+		   		 resolution=1, orient="horizontal", 
+				 variable=self.cam_settings[cv2.CAP_PROP_FOCUS]).pack()
+
+		tk.Button(settings_window, text="Save", command=self.update_cam_settings).pack()
+
 
 	def close_settings_window(self, window):
 		self.menu_bar.entryconfig("Settings", state="normal")
