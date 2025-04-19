@@ -106,6 +106,7 @@ class App:
 		# TODO: not sure that autofocus or contrast settings working properly!
 		# TODO: have sliders update every so often, or asynchronously so that
 		# changing settings doesn't slow the whole program down
+		# TODO: add settings for clustering to settings window
 		tk.Label(settings_window, text="Autofocus").pack()
 		tk.Checkbutton(settings_window, 
 				       variable=self.cam_settings[cv2.CAP_PROP_AUTOFOCUS],
