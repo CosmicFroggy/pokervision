@@ -24,9 +24,10 @@ class App:
 		self.cam_settings = {
 			cv2.CAP_PROP_AUTOFOCUS : tk.IntVar(value=0),
 			cv2.CAP_PROP_FOCUS : tk.IntVar(value=100),
-			cv2.CAP_PROP_BRIGHTNESS : tk.IntVar(value=100)
+			cv2.CAP_PROP_BRIGHTNESS : tk.IntVar(value=100),
+			cv2.CAP_PROP_EXPOSURE : tk.IntVar(value=100),
+			cv2.CAP_PROP_CONTRAST: tk.IntVar(value=100)
 		}
-		self.update_cam_settings() # init these settings
 
 	def update_cam_settings(self):
 		for setting, value in self.cam_settings.items():
@@ -44,13 +45,38 @@ class App:
 		settings_window.geometry("200x600")
 
 		# settings to be configured
+		# TODO: not sure that autofocus or contrast settings working properly!
+		# TODO: have sliders update every so often, or asynchronously so that
+		# changing settings doesn't slow the whole program down
+		tk.Label(settings_window, text="Autofocus").pack()
+		tk.Checkbutton(settings_window, 
+				       variable=self.cam_settings[cv2.CAP_PROP_AUTOFOCUS],
+					   onvalue=255, offvalue=0,
+					   command= lambda _ : self.update_cam_settings()).pack()
+		
 		tk.Label(settings_window, text="Focus").pack()
 		tk.Scale(settings_window, from_=0, to=255, 
-		   		 resolution=1, orient="horizontal", 
-				 variable=self.cam_settings[cv2.CAP_PROP_FOCUS]).pack()
-
-		tk.Button(settings_window, text="Save", command=self.update_cam_settings).pack()
-
+		   		 resolution=5, orient="horizontal", 
+				 variable=self.cam_settings[cv2.CAP_PROP_FOCUS],
+				 command= lambda _ : self.update_cam_settings()).pack()
+		
+		tk.Label(settings_window, text="Brightness").pack()
+		tk.Scale(settings_window, from_=0, to=255, 
+		   		 resolution=5, orient="horizontal", 
+				 variable=self.cam_settings[cv2.CAP_PROP_BRIGHTNESS],
+				 command= lambda _ : self.update_cam_settings()).pack()
+		
+		tk.Label(settings_window, text="Exposure").pack()
+		tk.Scale(settings_window, from_=0, to=255, 
+		   		 resolution=5, orient="horizontal", 
+				 variable=self.cam_settings[cv2.CAP_PROP_EXPOSURE],
+				 command= lambda _ : self.update_cam_settings()).pack()
+		
+		tk.Label(settings_window, text="Contrast").pack()
+		tk.Scale(settings_window, from_=0, to=255, 
+		   		 resolution=5, orient="horizontal", 
+				 variable=self.cam_settings[cv2.CAP_PROP_CONTRAST],
+				 command= lambda _ : self.update_cam_settings()).pack()
 
 	def close_settings_window(self, window):
 		self.menu_bar.entryconfig("Settings", state="normal")
