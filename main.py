@@ -14,11 +14,25 @@ class App:
 
 		# create menu bar
 		self.menu_bar = tk.Menu(self.root)
-		self.menu_bar.add_command(label="Settings")
+		self.menu_bar.add_command(label="Settings", command=self.open_settings_window)
 		self.root.config(menu=self.menu_bar)
 
 		# get camera feed
 		self.cam = cv2.VideoCapture(0)
+
+	def open_settings_window(self):
+		# vv disable settings button
+		self.menu_bar.entryconfig("Settings", state="disabled") 
+		settings_window = tk.Toplevel(self.root)
+		# vv reenable settings button on window close
+		settings_window.protocol("WM_DELETE_WINDOW", 
+			lambda: self.close_settings_window(settings_window))
+		settings_window.title("Settings")
+		settings_window.geometry("200x600")
+
+	def close_settings_window(self, window):
+		self.menu_bar.entryconfig("Settings", state="normal")
+		window.destroy()
 
 	def update(self):
 		# read image from camera
