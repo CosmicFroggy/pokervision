@@ -22,7 +22,8 @@ labels = data["names"]
 # class for storing card information, could make cards persistent between
 # frames later
 class CardPrediction:
-	def __init__(self, position, left, right, top, bottom, class_id, suit_rank, confidence):
+	def __init__(self, id, position, left, right, top, bottom, class_id, suit_rank, confidence):
+		self.id = id
 		self.position = position
 		self.left = left
 		self.right = right
@@ -46,7 +47,7 @@ class CardPrediction:
 				   (0, 255, 0),
 				   -1)
 		cv2.putText(frame, 
-					f"{self.suit_rank}({self.hand}): {self.confidence:.2f}", 
+					f"[{self.id}]{self.suit_rank}({self.hand}): {100*self.confidence:.2f}%", 
 					(self.left, self.top - 30), 
 					cv2.FONT_HERSHEY_SIMPLEX, 
 					0.5, 
@@ -166,7 +167,7 @@ class App:
 	def analyse_frame(self, frame):
 		# detect cards
 		cards = []
-		prediction = next(self.model.track(frame, stream=True, verbose=False, persist=True))
+		prediction = self.model.track(frame, verbose=False)[0]
 		if prediction.boxes.id != None:
 			for i, box_id in enumerate(prediction.boxes.id):
 				# get attributes of identified card
@@ -178,7 +179,7 @@ class App:
 				conf = prediction.boxes.conf[i]
 
 				# create new prediction object and add to list
-				cards.append(CardPrediction((cx, cy), x1, x2, y1, y2, class_id, labels[class_id], conf))
+				cards.append(CardPrediction(box_id, (cx, cy), x1, x2, y1, y2, class_id, labels[class_id], conf))
 
 			# using DBSCAN clustering algo to group card hands
 			positions = []
