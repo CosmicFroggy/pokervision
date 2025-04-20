@@ -4,7 +4,7 @@ from ultralytics import YOLO
 import yaml
 from sklearn.cluster import DBSCAN
 
-from card_detector import CardPrediction
+from card_detection import CardPrediction
 
 
 # TODO: put this label generation code in an object somewhere!!

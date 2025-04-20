@@ -1,4 +1,4 @@
-from poker_vision.app import App
+from poker_app.app import App
 
 if __name__ == "__main__":
 	app = App()

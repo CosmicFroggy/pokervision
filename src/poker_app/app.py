@@ -3,7 +3,7 @@ import cv2
 from PIL import Image, ImageTk
 
 
-from poker_vision.card_detector import analyse_frame
+from card_detection import analyse_frame
 
 
 # main app class
