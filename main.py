@@ -75,20 +75,19 @@ class App:
 
 		# camera settings TODO: pull these from config file
 		self.cam_settings = {
-			cv2.CAP_PROP_AUTOFOCUS : tk.IntVar(value=0),
-			cv2.CAP_PROP_FOCUS : tk.IntVar(value=100),
-			cv2.CAP_PROP_BRIGHTNESS : tk.IntVar(value=100),
-			cv2.CAP_PROP_EXPOSURE : tk.IntVar(value=100),
-			cv2.CAP_PROP_CONTRAST: tk.IntVar(value=100)
+			cv2.CAP_PROP_AUTOFOCUS : tk.IntVar(value=1),
+			cv2.CAP_PROP_FOCUS : tk.IntVar(value=0),
+			cv2.CAP_PROP_BRIGHTNESS : tk.IntVar(value=137),
+			cv2.CAP_PROP_EXPOSURE : tk.IntVar(value=-3),
+			cv2.CAP_PROP_CONTRAST: tk.IntVar(value=50)
 		}
 
 		# create model using previously trained weights
 		self.model = YOLO("CardDetector.pt")
 
 
-	def update_cam_settings(self):
-		for setting, value in self.cam_settings.items():
-			self.cam.set(setting, value.get())
+	def update_cam_setting(self, setting):
+		self.cam.set(setting, self.cam_settings[setting].get())
 
 
 	def open_settings_window(self):
@@ -110,32 +109,32 @@ class App:
 		tk.Label(settings_window, text="Autofocus").pack()
 		tk.Checkbutton(settings_window, 
 				       variable=self.cam_settings[cv2.CAP_PROP_AUTOFOCUS],
-					   onvalue=255, offvalue=0,
-					   command= lambda _ : self.update_cam_settings()).pack()
+					   onvalue=1, offvalue=0,
+					   command= lambda : self.update_cam_setting(cv2.CAP_PROP_AUTOFOCUS)).pack()
 		
 		tk.Label(settings_window, text="Focus").pack()
 		tk.Scale(settings_window, from_=0, to=255, 
 		   		 resolution=5, orient="horizontal", 
 				 variable=self.cam_settings[cv2.CAP_PROP_FOCUS],
-				 command= lambda _ : self.update_cam_settings()).pack()
+				 command= lambda _ : self.update_cam_setting(cv2.CAP_PROP_FOCUS)).pack()
 		
 		tk.Label(settings_window, text="Brightness").pack()
 		tk.Scale(settings_window, from_=0, to=255, 
 		   		 resolution=5, orient="horizontal", 
 				 variable=self.cam_settings[cv2.CAP_PROP_BRIGHTNESS],
-				 command= lambda _ : self.update_cam_settings()).pack()
+				 command= lambda _ : self.update_cam_setting(cv2.CAP_PROP_BRIGHTNESS)).pack()
 		
 		tk.Label(settings_window, text="Exposure").pack()
-		tk.Scale(settings_window, from_=0, to=255, 
-		   		 resolution=5, orient="horizontal", 
+		tk.Scale(settings_window, from_=-7, to=-1, 
+		   		 resolution=1, orient="horizontal", 
 				 variable=self.cam_settings[cv2.CAP_PROP_EXPOSURE],
-				 command= lambda _ : self.update_cam_settings()).pack()
+				 command= lambda _ : self.update_cam_setting(cv2.CAP_PROP_EXPOSURE)).pack()
 		
 		tk.Label(settings_window, text="Contrast").pack()
 		tk.Scale(settings_window, from_=0, to=255, 
 		   		 resolution=5, orient="horizontal", 
 				 variable=self.cam_settings[cv2.CAP_PROP_CONTRAST],
-				 command= lambda _ : self.update_cam_settings()).pack()
+				 command= lambda _ : self.update_cam_setting(cv2.CAP_PROP_CONTRAST)).pack()
 
 
 	def close_settings_window(self, window):
