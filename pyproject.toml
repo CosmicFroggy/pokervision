@@ -1,0 +1,22 @@
+[project]
+name = "pokervision"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "CosmicFroggy"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "kagglehub (==0.3.11)",
+    "opencv-python (==4.11.0.86)",
+    "pillow (==11.2.1)",
+    "pyyaml (==6.0.2)",
+    "scikit-learn (==1.6.1)",
+    "ultralytics (==8.3.111)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
