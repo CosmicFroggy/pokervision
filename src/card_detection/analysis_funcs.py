@@ -20,13 +20,16 @@ labels = data["names"]
 
 
 # create model using previously trained weights
-model = YOLO("CardDetector.pt")
-
+# model = YOLO("CardDetector.pt")
+# using model from https://github.com/PD-Mera/Playing-Cards-Detection
+# while I fine tune my own
+model = YOLO("yolov8s_playing_cards.pt")
 
 def analyse_frame(frame):
 		# detect cards
 		cards = []
-		prediction = model.track(frame, verbose=False)[0]
+		prediction = model.track(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), verbose=False, persist=True)[0]
+		
 		if prediction.boxes.id != None:
 			for i, box_id in enumerate(prediction.boxes.id):
 				# get attributes of identified card
