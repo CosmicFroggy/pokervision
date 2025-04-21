@@ -57,6 +57,9 @@ class App:
 					row += 1
 				self.card_sprites[name] = sheet_image.crop((col*88, row*124, 
 													(col+1)*88, (row+1)*124))
+				
+		# get card back sprite as well
+		self.card_sprites["back"] = Image.open("./res/SBS - 2D Poker Pack/Top-Down/Cards/Card_Back-88x124.png").crop((0, 0, 88, 124))
 
 
 
