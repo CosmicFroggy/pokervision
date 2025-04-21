@@ -4,7 +4,7 @@ import cv2
 from PIL import Image, ImageTk
 
 from card_detection import analyse_frame
-from widgets import Viewport
+from widgets import Viewport, SettingsWindow
 from utils import Camera
 
 
@@ -84,7 +84,7 @@ class App(tk.Tk):
 
 		# create menu bar
 		self.menu_bar = tk.Menu(self)
-		self.menu_bar.add_command(label="Settings", command=self.open_settings_window)
+		self.menu_bar.add_command(label="Settings", command= lambda : SettingsWindow(self))
 		self.config(menu=self.menu_bar)
 
 		
@@ -103,43 +103,7 @@ class App(tk.Tk):
 				self.cam.set_cam_prop(setting, val.get())
 				camera_settings[setting][1] = False
 
-
-	def open_settings_window(self):
-		# vv disable settings button
-		self.menu_bar.entryconfig("Settings", state="disabled") 
-		settings_window = tk.Toplevel(self)
-		# vv reenable settings button on window close
-		settings_window.protocol("WM_DELETE_WINDOW", 
-			lambda: self.close_settings_window(settings_window))
-		
-		settings_window.title("Settings")
-		settings_window.geometry("200x600")
-
-		# settings to be configured
-		# TODO: not sure that autofocus or contrast settings working properly!
-		# TODO: add settings for clustering to settings window
-		tk.Label(settings_window, text="Autofocus").pack()
-		tk.Checkbutton(settings_window, 
-				       variable=self.settings["CAMERA"]["AUTOFOCUS"][0],
-					   onvalue=1, offvalue=0, command= lambda : self.setting_update_notify("CAMERA", "AUTOFOCUS")).pack()
-		
-		tk.Label(settings_window, text="Focus").pack()
-		tk.Scale(settings_window, from_=0, to=255, 
-		   		 resolution=5, orient="horizontal", 
-				 variable=self.settings["CAMERA"]["FOCUS"][0],
-				 command= lambda _ : self.setting_update_notify("CAMERA", "FOCUS")).pack()
-		
-		tk.Label(settings_window, text="Brightness").pack()
-		tk.Scale(settings_window, from_=0, to=255, 
-		   		 resolution=5, orient="horizontal", 
-				 variable=self.settings["CAMERA"]["BRIGHTNESS"][0], command= lambda _ : self.setting_update_notify("CAMERA", "BRIGHTNESS")).pack()
 	
-
-	def close_settings_window(self, window):
-		self.menu_bar.entryconfig("Settings", state="normal")
-		window.destroy()
-
-
 	def update_card_objects(self, detected_cards):
 
 		# remove old cards no longer detected
