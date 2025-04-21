@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import cv2
 from PIL import Image, ImageTk
 
@@ -7,22 +8,22 @@ from card_detection import analyse_frame
 
 
 # main app class
-class App:
-	def __init__(self):
-		self.root = tk.Tk()
-		self.root.title("PokerVision")
-		self.root.protocol("WM_DELETE_WINDOW", self.destroy)
+class App(tk.Tk):
+	def __init__(self, title):
+		super().__init__()
+		self.title(title)
+		self.protocol("WM_DELETE_WINDOW", self.close)
 
 		# TODO: Lock the window size
 
 		# create video panel
-		self.video_panel = tk.Label(self.root)
+		self.video_panel = tk.Label(self)
 		self.video_panel.pack()
 
 		# create menu bar
-		self.menu_bar = tk.Menu(self.root)
+		self.menu_bar = tk.Menu(self)
 		self.menu_bar.add_command(label="Settings", command=self.open_settings_window)
-		self.root.config(menu=self.menu_bar)
+		self.config(menu=self.menu_bar)
 
 		# get camera feed
 		self.cam = cv2.VideoCapture(0)
@@ -74,7 +75,7 @@ class App:
 		self.card_sprites = { k: ImageTk.PhotoImage(v) for k, v in self.card_sprites.items() }
 
 		# create canvas to draw cards on
-		self.card_canvas = tk.Canvas(self.root, bg="#008080", height=400)
+		self.card_canvas = tk.Canvas(self, bg="#008080", height=400)
 		self.card_canvas.pack(fill="both", expand=True)
 
 		# track the card objects that are drawn on the canvas
@@ -126,7 +127,7 @@ class App:
 	def open_settings_window(self):
 		# vv disable settings button
 		self.menu_bar.entryconfig("Settings", state="disabled") 
-		settings_window = tk.Toplevel(self.root)
+		settings_window = tk.Toplevel(self)
 		# vv reenable settings button on window close
 		settings_window.protocol("WM_DELETE_WINDOW", 
 			lambda: self.close_settings_window(settings_window))
@@ -197,15 +198,15 @@ class App:
 		self.video_panel.config(image=frame)
 
 		# call update again after 10ms
-		self.root.after(10, self.update)
+		self.after(10, self.update)
 		
 
 	def run(self):
 		self.update()
-		self.root.mainloop()
+		self.mainloop()
 
 
-	def destroy(self):
+	def close(self):
 		self.cam.release()
-		self.root.destroy()
+		self.destroy()
 
