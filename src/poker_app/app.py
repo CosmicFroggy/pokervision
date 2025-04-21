@@ -36,7 +36,11 @@ class App:
 			cv2.CAP_PROP_CONTRAST: tk.IntVar(value=50)
 		}
 
+
 		# organise card sprites
+		self.CARD_WIDTH = 88
+		self.CARD_HEIGHT = 124
+
 		self.card_sprites = {}
 		sprite_sheets = ["Clubs-88x124.png",
 						"Diamonds-88x124.png",
@@ -57,11 +61,12 @@ class App:
 				col = i % max_col
 				if i != 0 and col == 0:
 					row += 1
-				self.card_sprites[name] = sheet_image.crop((col*88, row*124, 
-													(col+1)*88, (row+1)*124))
+				self.card_sprites[name] = sheet_image.crop(
+					(col*self.CARD_WIDTH, row*self.CARD_HEIGHT, 
+					(col+1)*self.CARD_WIDTH, (row+1)*self.CARD_HEIGHT))
 				
 		# get card back sprite as well
-		self.card_sprites["back"] = Image.open("./res/SBS - 2D Poker Pack/Top-Down/Cards/Card_Back-88x124.png").crop((0, 0, 88, 124))
+		self.card_sprites["back"] = Image.open("./res/SBS - 2D Poker Pack/Top-Down/Cards/Card_Back-88x124.png").crop((0, 0, self.CARD_WIDTH, self.CARD_HEIGHT))
 
 		# convert cards to tkinter compatible type
 		self.card_sprites = { k: ImageTk.PhotoImage(v) for k, v in self.card_sprites.items() }
@@ -98,6 +103,11 @@ class App:
 			self.card_objects.append((card_label, card_object))
 
 		# TODO: later we might want duplicates?
+
+	
+	def update_canvas_layout(self):
+		for i, (_, card_object) in enumerate(self.card_objects):
+			self.card_canvas.coords(card_object, i*self.CARD_WIDTH, 0)
 
 
 	def update_cam_setting(self, setting):
@@ -168,7 +178,7 @@ class App:
 
 		# TODO: update canvas with card sprites
 		self.update_card_objects(detected_cards)
-		print(self.card_objects)
+		self.update_canvas_layout()
 
 		# convert image to tkinter usable format
 		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
