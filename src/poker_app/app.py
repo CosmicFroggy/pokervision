@@ -41,6 +41,7 @@ class App:
 		self.CARD_WIDTH = 88
 		self.CARD_HEIGHT = 124	# TODO: add these to a config file/settings?
 		self.CARD_PAD = 5
+		self.CARDS_PER_ROW = 6
 
 		self.card_sprites = {}
 		sprite_sheets = ["Clubs-88x124.png",
@@ -107,9 +108,15 @@ class App:
 
 	
 	def update_canvas_layout(self):
+		row = 0
+		col = 0
 		for i, (_, card_object) in enumerate(self.card_objects):
-			x = self.CARD_PAD + i*(self.CARD_PAD + self.CARD_WIDTH)
-			self.card_canvas.coords(card_object, x, self.CARD_PAD)
+			col = i % self.CARDS_PER_ROW
+			if i != 0 and col == 0:
+				row += 1
+			x = self.CARD_PAD + col*(self.CARD_PAD + self.CARD_WIDTH)
+			y = self.CARD_PAD + row*(self.CARD_PAD + self.CARD_HEIGHT)
+			self.card_canvas.coords(card_object, x, y)
 
 
 	def update_cam_setting(self, setting):
