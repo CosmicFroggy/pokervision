@@ -92,9 +92,12 @@ class App:
 		previously_detected = [ val[0] for val in self.card_objects ]  # get the labels
 		new_cards = [ val for val in detected_cards if val not in previously_detected ]
 
-		for card_label in new_cards:
-			card_object = self.card_canvas.create_image(0, 0, img=self.card_sprites[card_label])  # create canvas image object, init at 0,0
+		
+		for card_label in set(new_cards): # change to set to remove duplicates
+			card_object = self.card_canvas.create_image(0, 0, image=self.card_sprites[card_label], anchor="nw")  # create canvas image object, init at 0,0
 			self.card_objects.append((card_label, card_object))
+
+		# TODO: later we might want duplicates?
 
 
 	def update_cam_setting(self, setting):
@@ -162,6 +165,10 @@ class App:
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
 		frame, detected_cards = analyse_frame(frame)
+
+		# TODO: update canvas with card sprites
+		self.update_card_objects(detected_cards)
+		print(self.card_objects)
 
 		# convert image to tkinter usable format
 		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
