@@ -9,6 +9,9 @@ from card_detection import CardPrediction
 
 # TODO: put this label generation code in an object somewhere!!
 
+# TODO: probably should hard code the labels so we don't need to download
+# the dataset just for the labels
+
 # download playing card dataset using kagglehub
 data_path = kagglehub.dataset_download("andy8744/playing-cards-object-detection-dataset")
 
@@ -66,5 +69,8 @@ def analyse_frame(frame):
 								card2.position, 
 								(0, 255, 0), 
 								2)
+						
+			# get the names of the detected cards
+			card_names = list(map(lambda cls_id : labels[int(cls_id)], prediction.boxes.cls.cpu().tolist()))
 			
-		return frame
+		return frame, card_names
