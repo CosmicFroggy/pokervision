@@ -34,6 +34,31 @@ class App:
 			cv2.CAP_PROP_CONTRAST: tk.IntVar(value=50)
 		}
 
+		# organise card sprites
+		self.card_sprites = {}
+		sprite_sheets = ["Clubs-88x124.png",
+						"Diamonds-88x124.png",
+						"Hearts-88x124.png",
+						"Spades-88x124.png"]
+
+		ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+
+		for sheet_name in sprite_sheets:
+			sheet_image = Image.open("./res/SBS - 2D Poker Pack/Top-Down/Cards/" + sheet_name)
+			suit = sheet_name[0].lower()
+			card_names = map(lambda rank : rank + suit, ranks) # TODO: should I use enums instead of strings?
+
+			row = 0
+			col = 0
+			max_col = 5
+			for i, name in enumerate(card_names):
+				col = i % max_col
+				if i != 0 and col == 0:
+					row += 1
+				self.card_sprites[name] = sheet_image.crop((col*88, row*124, 
+													(col+1)*88, (row+1)*124))
+
+
 
 	def update_cam_setting(self, setting):
 		self.cam.set(setting, self.cam_settings[setting].get())
