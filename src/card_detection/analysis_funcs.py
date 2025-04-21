@@ -1,67 +1,78 @@
 import cv2
-import kagglehub
 from ultralytics import YOLO
-import yaml
 from sklearn.cluster import DBSCAN
-
-from card_detection import CardPrediction
 
 
 labels = ['10c', '10d', '10h', '10s', '2c', '2d', '2h', '2s', '3c', '3d', '3h', '3s', '4c', '4d', '4h', '4s', '5c', '5d', '5h', '5s', '6c', '6d', '6h', '6s', '7c', '7d', '7h', '7s', '8c', '8d', '8h', '8s', '9c', '9d', '9h', '9s', 'Ac', 'Ad', 'Ah', 'As', 'Jc', 'Jd', 'Jh', 'Js', 'Kc', 'Kd', 'Kh', 'Ks', 'Qc', 'Qd', 'Qh', 'Qs']
-
 
 
 # create model using previously trained weights
 # model = YOLO("CardDetector.pt")
 # using model from https://github.com/PD-Mera/Playing-Cards-Detection
 # while I fine tune my own
-model = YOLO("./res/models/yolov8s_playing_cards.pt")
+detector_model = YOLO("./res/models/yolov8s_playing_cards.pt")
 
-def analyse_frame(frame):
-		# detect cards
-		cards = []
-		card_names = []
-		prediction = model.track(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), verbose=False, persist=True)[0]
-		
-		if prediction.boxes.id != None:
-			for i, box_id in enumerate(prediction.boxes.id):
-				# get attributes of identified card
-				x1, y1, x2, y2 = prediction.boxes.xyxy[i]
-				x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-				cx, cy, _, _ = prediction.boxes.xywh[i]
-				cx, cy = int(cx), int(cy)
-				class_id = int(prediction.boxes.cls[i])
-				conf = prediction.boxes.conf[i]
 
-				# create new prediction object and add to list
-				cards.append(CardPrediction(box_id, (cx, cy), x1, x2, y1, y2, class_id, labels[class_id], conf))
+def detect_cards(image):
+	cards = []
+	prediction = detector_model.track(image, verbose=False, persist=True)[0]
+	if prediction.boxes.id != None:
+		for i, box_id in enumerate(prediction.boxes.id):
+			# get attributes of identified card
+			box_id = box_id.cpu().tolist()
+			cls_id = int(prediction.boxes.cls[i].cpu().tolist())
+			cls_label = labels[cls_id]
+			conf = prediction.boxes.conf[i].cpu().tolist()
+			x, y, w, h = prediction.boxes.xywh[i].cpu().tolist()
+			cards.append((box_id, cls_label, conf, x, y, w, h))
+	
+	return cards
 
-			# using DBSCAN clustering algo to group card hands
-			positions = []
-			for card in cards:
-				positions.append(card.position)
-			hand_labels = DBSCAN(eps=100, min_samples=2).fit(positions).labels_
-			for i, label in enumerate(hand_labels):
-				cards[i].hand = label
 
-			# draw the card annotations
-			for card in cards:
-				card.draw(frame)
+def cluster(cards, eps=100, min_samples=2):
+	# using DBSCAN clustering algo to group card hands
 
-			# draw hand clustering
-			for i, card1 in enumerate(cards):
-				if i == len(cards) - 1:
-					break
-				for card2 in cards[i+1:]:
-					if card1.hand != -1 and card1.hand == card2.hand:
-						cv2.line(frame, 
-								card1.position, 
-								card2.position, 
-								(0, 255, 0), 
-								2)
-						
-			# get the names of the detected cards
-			cls_list = prediction.boxes.cls.cpu().tolist()
-			card_names = [ labels[int(cls_id)] for cls_id in cls_list ]
+	if len(cards) == 0:
+		return []
+
+	positions = []
+	for card in cards:
+		x, y = card[3:5]
+		position = (x, y)
+		positions.append(position)
+	
+	hand_labels = DBSCAN(eps=eps, min_samples=min_samples).fit(positions).labels_.tolist()
+
+	return hand_labels
+
+
+def annotate(image, cards, hand_labels):
+	# draw the card annotations
+	for i, card in enumerate(cards):
+		id, cls, conf, x, y, w, h = card
+		x_l, y_t, x_r, y_b = int(x-w/2), int(y-h/2), int(x+w/2), int(y+h/2)
+		x, y = int(x), int(y)
+		cv2.rectangle(image, (x_l, y_t), (x_r, y_b), (0, 255, 0), 1)
+		cv2.circle(image, (x, y), 3, (0, 255, 0), -1)
+		cv2.putText(image, f"[{id}]{cls}({hand_labels[i]}): {100*conf:.2f}%", (x_l, y_t-30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+
+	# draw hand clustering
+	for i, card1 in enumerate(cards):
+		if i == len(cards) - 1:
+			break
+
+		# check that card belongs to a hand
+		elif hand_labels[i] == -1:
+			continue
+
+		# now match it to all other cards with the same hand
+		for j, card2 in enumerate(cards[i+1:]):
+			if hand_labels[i] != hand_labels[i+j+1]:
+				continue
 			
-		return frame, card_names
+			# draw a line between them if they belong to same hand
+			x1, y1 = card1[3:5]
+			pos1 = (int(x1), int(y1))
+			x2, y2 = card2[3:5]
+			pos2 = (int(x2), int(y2))
+			cv2.line(image, pos1, pos2, (0, 255, 0), 2)

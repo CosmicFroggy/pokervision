@@ -2,7 +2,7 @@ import tkinter as tk
 import cv2
 from PIL import Image, ImageTk
 
-from card_detection import analyse_frame
+from card_detection import detect_cards, cluster, annotate
 from widgets import Viewport, CardDisplay, MenuBar
 from utils import Camera, load_sprites
 
@@ -63,12 +63,13 @@ class App(tk.Tk):
 
 		# read image from camera
 		frame = self.cam.read()
-
-		# TODO: does the model expect rgb or bgr??? 
-		# Tkinter needs rgb either way
+		
+		# use machine learning to detect cards
+		cards = detect_cards(frame)
+		card_labels = [card[1] for card in cards]
+		hands = cluster(cards)  # use dbscan to identify hands by clustering
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-		frame, detected_cards = analyse_frame(frame)
+		annotate(frame, cards, hands) # draw on the frame
 
 		# convert image to tkinter usable format
 		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
@@ -77,7 +78,7 @@ class App(tk.Tk):
 		self.viewport.swap_buffer(frame)
 
 		# update canvas with card sprites
-		self.card_display.update(detected_cards)
+		self.card_display.update(card_labels)
 	
 		# update settings once per frame, only if they were changed
 		self.update_settings()
