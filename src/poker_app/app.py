@@ -4,7 +4,7 @@ import cv2
 from PIL import Image, ImageTk
 
 from card_detection import analyse_frame
-from widgets import Viewport, SettingsWindow
+from widgets import Viewport, SettingsWindow, CardDisplay
 from utils import Camera
 
 
@@ -20,8 +20,7 @@ class App(tk.Tk):
 		# get access to camera
 		self.cam = Camera()
 
-		# init camera settings?
-		# TODO: pull these from config file and initialise? JSON
+		# initialise settings
 		# this is a dict of lists [settingVar, changed]
 		# changed refers to whether it has been modified this frame
 		self.settings = {
@@ -34,14 +33,16 @@ class App(tk.Tk):
 
 			}
 		}
+		
+		# TODO: pull settings from config file, probably JSON
 
 		# create video panel
 		self.viewport = Viewport(self)
 		self.viewport.pack()
 
-		# organise card sprites
+		# card attributes
 		self.CARD_WIDTH = 88
-		self.CARD_HEIGHT = 124	# TODO: add these to a config file/settings?
+		self.CARD_HEIGHT = 124
 		self.CARD_PAD = 5
 		self.CARDS_PER_ROW = 6
 
@@ -75,12 +76,11 @@ class App(tk.Tk):
 		# convert cards to tkinter compatible type
 		self.card_sprites = { k: ImageTk.PhotoImage(v) for k, v in self.card_sprites.items() }
 
-		# create canvas to draw cards on
-		self.card_canvas = tk.Canvas(self, bg="#008080", height=400)
-		self.card_canvas.pack(fill="both", expand=True)
+		# create area to display detected cards
+		self.card_display = CardDisplay(self)
+		self.card_display.pack(fill="both")
 
-		# track the card objects that are drawn on the canvas
-		self.card_objects = [] # list of tuples (card label, tk image object)
+		
 
 		# create menu bar
 		self.menu_bar = tk.Menu(self)
@@ -104,42 +104,7 @@ class App(tk.Tk):
 				camera_settings[setting][1] = False
 
 	
-	def update_card_objects(self, detected_cards):
-
-		# remove old cards no longer detected
-		to_delete = [] # record indices to delete, avoid invalidation
-		for i, (card_label, card_object) in enumerate(self.card_objects):
-			if card_label not in detected_cards:
-				self.card_canvas.delete(card_object)
-				to_delete.append(i)
-
-		to_delete.reverse()
-		for i in to_delete:
-			del self.card_objects[i]
-
-
-		# add newly detected cards
-		previously_detected = [ val[0] for val in self.card_objects ]  # get the labels
-		new_cards = [ val for val in detected_cards if val not in previously_detected ]
-
-		
-		for card_label in set(new_cards): # change to set to remove duplicates
-			card_object = self.card_canvas.create_image(0, 0, image=self.card_sprites[card_label], anchor="nw")  # create canvas image object, init at 0,0
-			self.card_objects.append((card_label, card_object))
-
-		# TODO: later we might want duplicates?
-
 	
-	def update_canvas_layout(self):
-		row = 0
-		col = 0
-		for i, (_, card_object) in enumerate(self.card_objects):
-			col = i % self.CARDS_PER_ROW
-			if i != 0 and col == 0:
-				row += 1
-			x = self.CARD_PAD + col*(self.CARD_PAD + self.CARD_WIDTH)
-			y = self.CARD_PAD + row*(self.CARD_PAD + self.CARD_HEIGHT)
-			self.card_canvas.coords(card_object, x, y)
 
 
 	def update(self):
@@ -156,12 +121,12 @@ class App(tk.Tk):
 		# convert image to tkinter usable format
 		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
 
+		# update image shown in viewport
 		self.viewport.swap_buffer(frame)
 
-		# TODO: update canvas with card sprites
-		self.update_card_objects(detected_cards)
-		self.update_canvas_layout()
-
+		# update canvas with card sprites
+		self.card_display.update(detected_cards)
+	
 		# update settings once per frame, only if they were changed
 		self.update_settings()
 
