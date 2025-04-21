@@ -13,6 +13,8 @@ class App:
 		self.root.title("PokerVision")
 		self.root.protocol("WM_DELETE_WINDOW", self.destroy)
 
+		# TODO: Lock the window size
+
 		# create video panel
 		self.video_panel = tk.Label(self.root)
 		self.video_panel.pack()
@@ -60,6 +62,11 @@ class App:
 				
 		# get card back sprite as well
 		self.card_sprites["back"] = Image.open("./res/SBS - 2D Poker Pack/Top-Down/Cards/Card_Back-88x124.png").crop((0, 0, 88, 124))
+
+		# create canvas to draw cards on
+		self.card_canvas = tk.Canvas(self.root, bg="#008080", height=400)
+		self.card_canvas.pack(fill="both", expand=True)
+
 
 
 
@@ -127,7 +134,7 @@ class App:
 		# Tkinter needs rgb either way
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-		frame = analyse_frame(frame)
+		frame, detected_cards = analyse_frame(frame)
 
 		# convert image to tkinter usable format
 		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
