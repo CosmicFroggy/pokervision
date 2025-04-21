@@ -7,6 +7,17 @@ from PIL import Image, ImageTk
 from card_detection import analyse_frame
 
 
+class Viewport(ttk.Frame):
+	def __init__(self, master):
+		super().__init__(master)
+		self.view = tk.Label(self)
+		self.view.pack()
+
+	def swap_buffer(self, frame):
+		self.view.buffer = frame # store reference so not garb-collected
+		self.view.config(image=self.view.buffer)
+
+
 # main app class
 class App(tk.Tk):
 	def __init__(self, title):
@@ -17,13 +28,8 @@ class App(tk.Tk):
 		# TODO: Lock the window size
 
 		# create video panel
-		self.video_panel = tk.Label(self)
-		self.video_panel.pack()
-
-		# create menu bar
-		self.menu_bar = tk.Menu(self)
-		self.menu_bar.add_command(label="Settings", command=self.open_settings_window)
-		self.config(menu=self.menu_bar)
+		self.viewport = Viewport(self)
+		self.viewport.pack()
 
 		# get camera feed
 		self.cam = cv2.VideoCapture(0)
@@ -37,6 +43,11 @@ class App(tk.Tk):
 			cv2.CAP_PROP_CONTRAST: tk.IntVar(value=50)
 		}
 
+
+		# create menu bar
+		self.menu_bar = tk.Menu(self)
+		self.menu_bar.add_command(label="Settings", command=self.open_settings_window)
+		self.config(menu=self.menu_bar)
 
 		# organise card sprites
 		self.CARD_WIDTH = 88
@@ -177,6 +188,7 @@ class App(tk.Tk):
 
 
 	def update(self):
+
 		# read image from camera
 		_, frame = self.cam.read()
 
@@ -186,19 +198,18 @@ class App(tk.Tk):
 
 		frame, detected_cards = analyse_frame(frame)
 
+		# convert image to tkinter usable format
+		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
+
+		self.viewport.swap_buffer(frame)
+
 		# TODO: update canvas with card sprites
 		self.update_card_objects(detected_cards)
 		self.update_canvas_layout()
 
-		# convert image to tkinter usable format
-		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
-
-		# update the video panel
-		self.video_panel.frame = frame # store reference so not garb-collected
-		self.video_panel.config(image=frame)
-
 		# call update again after 10ms
 		self.after(10, self.update)
+
 		
 
 	def run(self):
