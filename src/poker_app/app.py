@@ -70,7 +70,31 @@ class App:
 		self.card_canvas = tk.Canvas(self.root, bg="#008080", height=400)
 		self.card_canvas.pack(fill="both", expand=True)
 
+		# track the card objects that are drawn on the canvas
+		self.card_objects = [] # list of tuples (card label, tk image object)
 
+	
+	def update_card_objects(self, detected_cards):
+
+		# remove old cards no longer detected
+		to_delete = [] # record indices to delete, avoid invalidation
+		for i, (card_label, card_object) in enumerate(self.card_objects):
+			if card_label not in detected_cards:
+				self.card_canvas.delete(card_object)
+				to_delete.append(i)
+
+		to_delete.reverse()
+		for i in to_delete:
+			del self.card_objects[i]
+
+
+		# add newly detected cards
+		previously_detected = [ val[0] for val in self.card_objects ]  # get the labels
+		new_cards = [ val for val in detected_cards if val not in previously_detected ]
+
+		for card_label in new_cards:
+			card_object = self.card_canvas.create_image(0, 0, img=self.card_sprites[card_label])  # create canvas image object, init at 0,0
+			self.card_objects.append((card_label, card_object))
 
 
 	def update_cam_setting(self, setting):
