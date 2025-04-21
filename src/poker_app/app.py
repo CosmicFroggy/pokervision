@@ -3,7 +3,7 @@ import cv2
 from PIL import Image, ImageTk
 
 from card_detection import analyse_frame
-from widgets import Viewport, SettingsWindow, CardDisplay
+from widgets import Viewport, CardDisplay, MenuBar
 from utils import Camera, load_sprites
 
 
@@ -49,8 +49,7 @@ class App(tk.Tk):
 		
 
 		# create menu bar
-		self.menu_bar = tk.Menu(self)
-		self.menu_bar.add_command(label="Settings", command= lambda : SettingsWindow(self))
+		self.menu_bar = MenuBar(self)
 		self.config(menu=self.menu_bar)
 
 		
