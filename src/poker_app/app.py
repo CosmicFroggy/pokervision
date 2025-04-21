@@ -63,6 +63,9 @@ class App:
 		# get card back sprite as well
 		self.card_sprites["back"] = Image.open("./res/SBS - 2D Poker Pack/Top-Down/Cards/Card_Back-88x124.png").crop((0, 0, 88, 124))
 
+		# convert cards to tkinter compatible type
+		self.card_sprites = { k: ImageTk.PhotoImage(v) for k, v in self.card_sprites.items() }
+
 		# create canvas to draw cards on
 		self.card_canvas = tk.Canvas(self.root, bg="#008080", height=400)
 		self.card_canvas.pack(fill="both", expand=True)
