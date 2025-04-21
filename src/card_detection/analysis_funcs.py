@@ -31,6 +31,7 @@ model = YOLO("yolov8s_playing_cards.pt")
 def analyse_frame(frame):
 		# detect cards
 		cards = []
+		card_names = []
 		prediction = model.track(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), verbose=False, persist=True)[0]
 		
 		if prediction.boxes.id != None:
@@ -71,6 +72,7 @@ def analyse_frame(frame):
 								2)
 						
 			# get the names of the detected cards
-			card_names = list(map(lambda cls_id : labels[int(cls_id)], prediction.boxes.cls.cpu().tolist()))
+			cls_list = prediction.boxes.cls.cpu().tolist()
+			card_names = [ labels[int(cls_id)] for cls_id in cls_list ]
 			
 		return frame, card_names
