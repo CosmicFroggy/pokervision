@@ -26,7 +26,7 @@ labels = data["names"]
 # model = YOLO("CardDetector.pt")
 # using model from https://github.com/PD-Mera/Playing-Cards-Detection
 # while I fine tune my own
-model = YOLO("yolov8s_playing_cards.pt")
+model = YOLO("./res/models/yolov8s_playing_cards.pt")
 
 def analyse_frame(frame):
 		# detect cards

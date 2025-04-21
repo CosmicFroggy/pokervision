@@ -1,0 +1,67 @@
+# This is my made up format for specifying my assets
+# S means spritemap, s means sprite, # will be ignored
+# as a comment, spaces will be ignored or mark the end
+# of the spritemaps
+
+S SBS - 2D Poker Pack/Card-Back-88x124.png
+s back,0,0,88,124
+
+S SBS - 2D Poker Pack/Clubs-88x124.png
+s Ac,0,0,88,124
+s 2c,88,0,88,124
+s 3c,176,0,88,124
+s 4c,264,0,88,124
+s 5c,352,0,88,124
+s 6c,0,124,88,124
+s 7c,88,124,88,124
+s 8c,176,124,88,124
+s 9c,264,124,88,124
+s 10c,352,124,88,124
+s Jc,0,248,88,124
+s Qc,88,248,88,124
+s Kc,176,248,88,124
+
+S SBS - 2D Poker Pack/Diamonds-88x124.png
+s Ad,0,0,88,124
+s 2d,88,0,88,124
+s 3d,176,0,88,124
+s 4d,264,0,88,124
+s 5d,352,0,88,124
+s 6d,0,124,88,124
+s 7d,88,124,88,124
+s 8d,176,124,88,124
+s 9d,264,124,88,124
+s 10d,352,124,88,124
+s Jd,0,248,88,124
+s Qd,88,248,88,124
+s Kd,176,248,88,124
+
+S SBS - 2D Poker Pack/Hearts-88x124.png
+s Ah,0,0,88,124
+s 2h,88,0,88,124
+s 3h,176,0,88,124
+s 4h,264,0,88,124
+s 5h,352,0,88,124
+s 6h,0,124,88,124
+s 7h,88,124,88,124
+s 8h,176,124,88,124
+s 9h,264,124,88,124
+s 10h,352,124,88,124
+s Jh,0,248,88,124
+s Qh,88,248,88,124
+s Kh,176,248,88,124
+
+S SBS - 2D Poker Pack/Spades-88x124.png
+s As,0,0,88,124
+s 2s,88,0,88,124
+s 3s,176,0,88,124
+s 4s,264,0,88,124
+s 5s,352,0,88,124
+s 6s,0,124,88,124
+s 7s,88,124,88,124
+s 8s,176,124,88,124
+s 9s,264,124,88,124
+s 10s,352,124,88,124
+s Js,0,248,88,124
+s Qs,88,248,88,124
+s Ks,176,248,88,124

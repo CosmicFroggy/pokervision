@@ -1,11 +1,10 @@
 import tkinter as tk
-from tkinter import ttk
 import cv2
 from PIL import Image, ImageTk
 
 from card_detection import analyse_frame
 from widgets import Viewport, SettingsWindow, CardDisplay
-from utils import Camera
+from utils import Camera, load_sprites
 
 
 # main app class
@@ -40,41 +39,8 @@ class App(tk.Tk):
 		self.viewport = Viewport(self)
 		self.viewport.pack()
 
-		# card attributes
-		self.CARD_WIDTH = 88
-		self.CARD_HEIGHT = 124
-		self.CARD_PAD = 5
-		self.CARDS_PER_ROW = 6
-
-		self.card_sprites = {}
-		sprite_sheets = ["Clubs-88x124.png",
-						"Diamonds-88x124.png",
-						"Hearts-88x124.png",
-						"Spades-88x124.png"]
-
-		ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-
-		for sheet_name in sprite_sheets:
-			sheet_image = Image.open("./res/SBS - 2D Poker Pack/Top-Down/Cards/" + sheet_name)
-			suit = sheet_name[0].lower()
-			card_names = map(lambda rank : rank + suit, ranks) # TODO: should I use enums instead of strings?
-
-			row = 0
-			col = 0
-			max_col = 5
-			for i, name in enumerate(card_names):
-				col = i % max_col
-				if i != 0 and col == 0:
-					row += 1
-				self.card_sprites[name] = sheet_image.crop(
-					(col*self.CARD_WIDTH, row*self.CARD_HEIGHT, 
-					(col+1)*self.CARD_WIDTH, (row+1)*self.CARD_HEIGHT))
-				
-		# get card back sprite as well
-		self.card_sprites["back"] = Image.open("./res/SBS - 2D Poker Pack/Top-Down/Cards/Card_Back-88x124.png").crop((0, 0, self.CARD_WIDTH, self.CARD_HEIGHT))
-
-		# convert cards to tkinter compatible type
-		self.card_sprites = { k: ImageTk.PhotoImage(v) for k, v in self.card_sprites.items() }
+		# load assets
+		self.card_sprites = load_sprites("./res/sprites/atlas.txt")
 
 		# create area to display detected cards
 		self.card_display = CardDisplay(self)
