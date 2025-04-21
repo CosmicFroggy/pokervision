@@ -18,6 +18,34 @@ class Viewport(ttk.Frame):
 		self.view.config(image=self.view.buffer)
 
 
+class Camera():
+	def __init__(self):
+		# get camera feed
+		self.cam = cv2.VideoCapture(0)
+
+		# TODO: should I use enum here?
+		self.prop_map = {
+			"AUTOFOCUS": cv2.CAP_PROP_AUTOFOCUS,
+			"FOCUS": cv2.CAP_PROP_FOCUS,
+			"BRIGHTNESS": cv2.CAP_PROP_BRIGHTNESS
+		}
+
+	# TODO: throw error if unsupported prop passed in, for get function as well
+	def set_cam_prop(self, prop, val):
+		self.cam.set(self.prop_map[prop], val)
+
+	def get_cam_prop(self, prop):
+		self.cam.get(self.prop_map[prop])
+
+	def read(self):
+		ret, frame = self.cam.read()
+		# TODO: should throw error if ret is false
+		return frame
+	
+	def release(self):
+		self.cam.release()
+
+
 # main app class
 class App(tk.Tk):
 	def __init__(self, title):
@@ -27,27 +55,23 @@ class App(tk.Tk):
 
 		# TODO: Lock the window size
 
+		# get access to camera
+		self.cam = Camera()
+
+		# init camera settings?
+		# TODO: pull these from config file and initialise?
+		self.settings = {
+			"AUTOFOCUS": tk.IntVar(self.cam.get_cam_prop("AUTOFOCUS")),
+			"FOCUS": tk.IntVar(self.cam.get_cam_prop("FOCUS")),
+			"BRIGHTNESS": tk.IntVar(self.cam.get_cam_prop("BRIGHTNESS")),
+		}
+
+		# TODO: update the settings only once at the end of the frame
+		# and only if they were changed
+
 		# create video panel
 		self.viewport = Viewport(self)
 		self.viewport.pack()
-
-		# get camera feed
-		self.cam = cv2.VideoCapture(0)
-
-		# camera settings TODO: pull these from config file
-		self.cam_settings = {
-			cv2.CAP_PROP_AUTOFOCUS : tk.IntVar(value=1),
-			cv2.CAP_PROP_FOCUS : tk.IntVar(value=0),
-			cv2.CAP_PROP_BRIGHTNESS : tk.IntVar(value=137),
-			cv2.CAP_PROP_EXPOSURE : tk.IntVar(value=-3),
-			cv2.CAP_PROP_CONTRAST: tk.IntVar(value=50)
-		}
-
-
-		# create menu bar
-		self.menu_bar = tk.Menu(self)
-		self.menu_bar.add_command(label="Settings", command=self.open_settings_window)
-		self.config(menu=self.menu_bar)
 
 		# organise card sprites
 		self.CARD_WIDTH = 88
@@ -92,7 +116,47 @@ class App(tk.Tk):
 		# track the card objects that are drawn on the canvas
 		self.card_objects = [] # list of tuples (card label, tk image object)
 
-	
+		# create menu bar
+		self.menu_bar = tk.Menu(self)
+		self.menu_bar.add_command(label="Settings", command=self.open_settings_window)
+		self.config(menu=self.menu_bar)
+
+
+	def open_settings_window(self):
+		# vv disable settings button
+		self.menu_bar.entryconfig("Settings", state="disabled") 
+		settings_window = tk.Toplevel(self)
+		# vv reenable settings button on window close
+		settings_window.protocol("WM_DELETE_WINDOW", 
+			lambda: self.close_settings_window(settings_window))
+		
+		settings_window.title("Settings")
+		settings_window.geometry("200x600")
+
+		# settings to be configured
+		# TODO: not sure that autofocus or contrast settings working properly!
+		# TODO: add settings for clustering to settings window
+		tk.Label(settings_window, text="Autofocus").pack()
+		tk.Checkbutton(settings_window, 
+				       variable=self.settings["AUTOFOCUS"],
+					   onvalue=1, offvalue=0).pack()
+		
+		tk.Label(settings_window, text="Focus").pack()
+		tk.Scale(settings_window, from_=0, to=255, 
+		   		 resolution=5, orient="horizontal", 
+				 variable=self.settings["FOCUS"]).pack()
+		
+		tk.Label(settings_window, text="Brightness").pack()
+		tk.Scale(settings_window, from_=0, to=255, 
+		   		 resolution=5, orient="horizontal", 
+				 variable=self.settings["BRIGHTNESS"]).pack()
+		
+
+	def close_settings_window(self, window):
+		self.menu_bar.entryconfig("Settings", state="normal")
+		window.destroy()
+
+
 	def update_card_objects(self, detected_cards):
 
 		# remove old cards no longer detected
@@ -131,66 +195,10 @@ class App(tk.Tk):
 			self.card_canvas.coords(card_object, x, y)
 
 
-	def update_cam_setting(self, setting):
-		self.cam.set(setting, self.cam_settings[setting].get())
-
-
-	def open_settings_window(self):
-		# vv disable settings button
-		self.menu_bar.entryconfig("Settings", state="disabled") 
-		settings_window = tk.Toplevel(self)
-		# vv reenable settings button on window close
-		settings_window.protocol("WM_DELETE_WINDOW", 
-			lambda: self.close_settings_window(settings_window))
-		
-		settings_window.title("Settings")
-		settings_window.geometry("200x600")
-
-		# settings to be configured
-		# TODO: not sure that autofocus or contrast settings working properly!
-		# TODO: have sliders update every so often, or asynchronously so that
-		# changing settings doesn't slow the whole program down
-		# TODO: add settings for clustering to settings window
-		tk.Label(settings_window, text="Autofocus").pack()
-		tk.Checkbutton(settings_window, 
-				       variable=self.cam_settings[cv2.CAP_PROP_AUTOFOCUS],
-					   onvalue=1, offvalue=0,
-					   command= lambda : self.update_cam_setting(cv2.CAP_PROP_AUTOFOCUS)).pack()
-		
-		tk.Label(settings_window, text="Focus").pack()
-		tk.Scale(settings_window, from_=0, to=255, 
-		   		 resolution=5, orient="horizontal", 
-				 variable=self.cam_settings[cv2.CAP_PROP_FOCUS],
-				 command= lambda _ : self.update_cam_setting(cv2.CAP_PROP_FOCUS)).pack()
-		
-		tk.Label(settings_window, text="Brightness").pack()
-		tk.Scale(settings_window, from_=0, to=255, 
-		   		 resolution=5, orient="horizontal", 
-				 variable=self.cam_settings[cv2.CAP_PROP_BRIGHTNESS],
-				 command= lambda _ : self.update_cam_setting(cv2.CAP_PROP_BRIGHTNESS)).pack()
-		
-		tk.Label(settings_window, text="Exposure").pack()
-		tk.Scale(settings_window, from_=-7, to=-1, 
-		   		 resolution=1, orient="horizontal", 
-				 variable=self.cam_settings[cv2.CAP_PROP_EXPOSURE],
-				 command= lambda _ : self.update_cam_setting(cv2.CAP_PROP_EXPOSURE)).pack()
-		
-		tk.Label(settings_window, text="Contrast").pack()
-		tk.Scale(settings_window, from_=0, to=255, 
-		   		 resolution=5, orient="horizontal", 
-				 variable=self.cam_settings[cv2.CAP_PROP_CONTRAST],
-				 command= lambda _ : self.update_cam_setting(cv2.CAP_PROP_CONTRAST)).pack()
-
-
-	def close_settings_window(self, window):
-		self.menu_bar.entryconfig("Settings", state="normal")
-		window.destroy()
-
-
 	def update(self):
 
 		# read image from camera
-		_, frame = self.cam.read()
+		frame = self.cam.read()
 
 		# TODO: does the model expect rgb or bgr??? 
 		# Tkinter needs rgb either way
