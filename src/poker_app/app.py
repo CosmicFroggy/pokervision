@@ -21,15 +21,19 @@ class App(tk.Tk):
 		self.cam = Camera()
 
 		# init camera settings?
-		# TODO: pull these from config file and initialise?
+		# TODO: pull these from config file and initialise? JSON
+		# this is a dict of lists [settingVar, changed]
+		# changed refers to whether it has been modified this frame
 		self.settings = {
-			"AUTOFOCUS": tk.IntVar(self.cam.get_cam_prop("AUTOFOCUS")),
-			"FOCUS": tk.IntVar(self.cam.get_cam_prop("FOCUS")),
-			"BRIGHTNESS": tk.IntVar(self.cam.get_cam_prop("BRIGHTNESS")),
-		}
+			"CAMERA": { 
+				"AUTOFOCUS": [tk.IntVar(self.cam.get_cam_prop("AUTOFOCUS")), False],
+				"FOCUS": [tk.IntVar(self.cam.get_cam_prop("FOCUS")), False],
+				"BRIGHTNESS": [tk.IntVar(self.cam.get_cam_prop("BRIGHTNESS")), False]
+				},
+			"CLUSTERING": {
 
-		# TODO: update the settings only once at the end of the frame
-		# and only if they were changed
+			}
+		}
 
 		# create video panel
 		self.viewport = Viewport(self)
@@ -83,6 +87,22 @@ class App(tk.Tk):
 		self.menu_bar.add_command(label="Settings", command=self.open_settings_window)
 		self.config(menu=self.menu_bar)
 
+		
+	def setting_update_notify(self, subject, setting):
+		self.settings[subject][setting][1] = True
+
+
+	def update_settings(self):
+		# update the settings only once at the end of the frame
+		# and only if they were changed
+
+		# camera settings
+		camera_settings = self.settings["CAMERA"]
+		for setting, (val, changed) in camera_settings.items():
+			if changed:
+				self.cam.set_cam_prop(setting, val.get())
+				camera_settings[setting][1] = False
+
 
 	def open_settings_window(self):
 		# vv disable settings button
@@ -100,19 +120,20 @@ class App(tk.Tk):
 		# TODO: add settings for clustering to settings window
 		tk.Label(settings_window, text="Autofocus").pack()
 		tk.Checkbutton(settings_window, 
-				       variable=self.settings["AUTOFOCUS"],
-					   onvalue=1, offvalue=0).pack()
+				       variable=self.settings["CAMERA"]["AUTOFOCUS"][0],
+					   onvalue=1, offvalue=0, command= lambda : self.setting_update_notify("CAMERA", "AUTOFOCUS")).pack()
 		
 		tk.Label(settings_window, text="Focus").pack()
 		tk.Scale(settings_window, from_=0, to=255, 
 		   		 resolution=5, orient="horizontal", 
-				 variable=self.settings["FOCUS"]).pack()
+				 variable=self.settings["CAMERA"]["FOCUS"][0],
+				 command= lambda _ : self.setting_update_notify("CAMERA", "FOCUS")).pack()
 		
 		tk.Label(settings_window, text="Brightness").pack()
 		tk.Scale(settings_window, from_=0, to=255, 
 		   		 resolution=5, orient="horizontal", 
-				 variable=self.settings["BRIGHTNESS"]).pack()
-		
+				 variable=self.settings["CAMERA"]["BRIGHTNESS"][0], command= lambda _ : self.setting_update_notify("CAMERA", "BRIGHTNESS")).pack()
+	
 
 	def close_settings_window(self, window):
 		self.menu_bar.entryconfig("Settings", state="normal")
@@ -176,6 +197,9 @@ class App(tk.Tk):
 		# TODO: update canvas with card sprites
 		self.update_card_objects(detected_cards)
 		self.update_canvas_layout()
+
+		# update settings once per frame, only if they were changed
+		self.update_settings()
 
 		# call update again after 10ms
 		self.after(10, self.update)
