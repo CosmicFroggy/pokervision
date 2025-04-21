@@ -19,43 +19,34 @@ class App(tk.Tk):
 		# get access to camera
 		self.cam = Camera()
 
+		# load assets
+		self.card_sprites = load_sprites("./res/sprites/atlas.txt")
+
 		# initialise settings
 		# this is a dict of lists [settingVar, changed]
 		# changed refers to whether it has been modified this frame
-		self.settings = {
+		self.settings = {  # TODO: pull settings from config file, probably JSON
 			"CAMERA": { 
 				"AUTOFOCUS": [tk.IntVar(self.cam.get_cam_prop("AUTOFOCUS")), False],
 				"FOCUS": [tk.IntVar(self.cam.get_cam_prop("FOCUS")), False],
 				"BRIGHTNESS": [tk.IntVar(self.cam.get_cam_prop("BRIGHTNESS")), False]
 				},
 			"CLUSTERING": {
-
 			}
 		}
 		
-		# TODO: pull settings from config file, probably JSON
-
-		# create video panel
-		self.viewport = Viewport(self)
+		# layout
+		self.viewport = Viewport(self)  # create video panel
 		self.viewport.pack()
 
-		# load assets
-		self.card_sprites = load_sprites("./res/sprites/atlas.txt")
-
-		# create area to display detected cards
-		self.card_display = CardDisplay(self)
+		self.card_display = CardDisplay(self)  # create area to display cards
 		self.card_display.pack(fill="both")
 
-		
-
-		# create menu bar
-		self.menu_bar = MenuBar(self)
+		self.menu_bar = MenuBar(self)  # create menu bar
 		self.config(menu=self.menu_bar)
 
-		
 	def setting_update_notify(self, subject, setting):
 		self.settings[subject][setting][1] = True
-
 
 	def update_settings(self):
 		# update the settings only once at the end of the frame
@@ -67,10 +58,6 @@ class App(tk.Tk):
 			if changed:
 				self.cam.set_cam_prop(setting, val.get())
 				camera_settings[setting][1] = False
-
-	
-	
-
 
 	def update(self):
 
@@ -98,12 +85,9 @@ class App(tk.Tk):
 		# call update again after 10ms
 		self.after(10, self.update)
 
-		
-
 	def run(self):
 		self.update()
 		self.mainloop()
-
 
 	def close(self):
 		self.cam.release()
