@@ -68,9 +68,27 @@ def cluster(cards, eps=100, min_samples=2):
 		position = (x, y)
 		positions.append(position)
 	
+	# identify hand label for each card
 	hand_labels = DBSCAN(eps=eps, min_samples=min_samples).fit(positions).labels_.tolist()
 
 	return hand_labels
+
+
+def group_hands(card_labels, hand_labels):
+	# determine how many hands there is
+	unique_hands = set(filter(lambda i : i != -1, hand_labels))
+	num_hands = len(unique_hands)
+
+	# create list of n empty hands
+	hands = [ [] for hand in range(num_hands)]
+
+	# groups the cards into hand lists
+	for i, hand_label in enumerate(hand_labels):
+		if hand_label == -1:
+			continue
+		hands[hand_label].append(card_labels[i])
+
+	return hands
 
 
 def annotate(image, cards, hand_labels):

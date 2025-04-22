@@ -2,7 +2,7 @@ import tkinter as tk
 import cv2
 from PIL import Image, ImageTk
 
-from card_detection import detect_cards, cluster, annotate
+from card_detection import detect_cards, cluster, annotate, group_hands
 from widgets import Viewport, CardDisplay, MenuBar
 from utils import Camera, load_sprites
 
@@ -67,9 +67,11 @@ class App(tk.Tk):
 		# use machine learning to detect cards
 		cards = detect_cards(frame)
 		card_labels = [card[1] for card in cards]
-		hands = cluster(cards)  # use dbscan to identify hands by clustering
+		hand_labels = cluster(cards)  # use dbscan to identify hands by clustering
+		hands = group_hands(card_labels, hand_labels)
+		print(hands)
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-		annotate(frame, cards, hands) # draw on the frame
+		annotate(frame, cards, hand_labels) # draw on the frame
 
 		# convert image to tkinter usable format
 		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
