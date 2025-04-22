@@ -66,6 +66,9 @@ class App(tk.Tk):
 		# read image from camera
 		frame = self.cam.read()
 		
+		# scale the image up
+		frame = cv2.resize(frame, (int(frame.shape[1]*1.5), int(frame.shape[0]*1.5)))
+		
 		# use machine learning to detect cards
 		cards = detect_cards(frame)
 		card_labels = [card[1] for card in cards]
@@ -74,8 +77,6 @@ class App(tk.Tk):
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 		annotate(frame, cards, hand_labels) # draw on the frame
 
-		# scale the image up
-		frame = cv2.resize(frame, (int(frame.shape[1]*1.5), int(frame.shape[0]*1.5)))
 
 		# convert image to tkinter usable format
 		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
