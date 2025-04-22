@@ -82,7 +82,8 @@ class App(tk.Tk):
 
 	def update(self):
 		"""
-		Update all elements of the program. Running this starts an update loop."""
+		Update all elements of the program. Running this starts an update loop.
+		"""
 
 		# read image from camera
 		frame = self.cam.read()
