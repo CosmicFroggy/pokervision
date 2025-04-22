@@ -1,5 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
+import distinctipy
+
+# colours for the hands
+COLOURS = list(map(distinctipy.get_hex, [(0.0, 1.0, 0.0), (1.0, 0.0, 1.0), (0.0, 0.5, 1.0), (1.0, 0.5, 0.0), (0.5, 0.75, 0.5), (0.39678717264876207, 0.13197211806938614, 0.5819931085974647), (0.827283646369405, 0.0138353214106115, 0.1133231387287158), (0.9473827093671684, 0.5084359241017635, 0.8346452862150692), (0.8164329577113776, 0.9928299927881508, 0.009255363614705248), (0.019434052374008415, 0.5050126764558274, 0.11088395395899864), (0.0, 1.0, 1.0), (0.0, 0.0, 1.0), (0.0, 1.0, 0.5), (0.40589042036593503, 0.22354084754929282, 0.10318437663226065), (0.997383433128567, 0.8260316549965426, 0.48300860517842303)]))
 
 
 class CardDisplay(ttk.Frame):
@@ -57,7 +61,7 @@ class CardDisplay(ttk.Frame):
 		num_labels = len(self.hand_text_objects)
 		while(num_labels != num_hands):
 			if num_hands > num_labels:
-				new_label = self.canvas.create_text(0,0, text=f"Hand {num_labels}:", fill="black", font=('Helvetica 20 bold'), anchor="nw")
+				new_label = self.canvas.create_text(0,0, text=f"Hand {num_labels}:", fill=COLOURS[num_labels], font=('Helvetica 20 bold'), anchor="nw")
 				self.hand_text_objects.append(new_label)
 				num_labels += 1
 			elif num_hands < num_labels:
@@ -67,7 +71,7 @@ class CardDisplay(ttk.Frame):
 
 		# add or remove outlier label if needed
 		if outliers and self.outlier_text_object == None:
-			outlier_label = self.canvas.create_text(0,0, text=f"Outliers:", fill="black", font=('Helvetica 20 bold'), anchor="nw")
+			outlier_label = self.canvas.create_text(0,0, text=f"Outliers:", fill="#808080", font=('Helvetica 20 bold'), anchor="nw")
 			self.outlier_text_object = outlier_label
 		elif not outliers and self.outlier_text_object != None:
 			self.canvas.delete(self.outlier_text_object)
