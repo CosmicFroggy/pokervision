@@ -73,6 +73,22 @@ class CardDisplay(ttk.Frame):
 			self.canvas.delete(self.outlier_text_object)
 			self.outlier_text_object = None
 
+	def draw_cards(self, card_labels, x, y):
+		col = 0
+		for i, card_label in enumerate(card_labels):
+			# go onto new row if exceed max per row
+			col = i % self.CARDS_PER_ROW
+
+			if col == 0:
+				x = self.CARD_PAD
+			else:
+				x += self.CARD_WIDTH + self.CARD_PAD
+
+			if i != 0 and col == 0:
+				y += self.CARD_HEIGHT+ self.CARD_PAD
+
+			self.canvas.coords(self.card_objects[card_label], x, y)
+
 	def update_canvas_layout(self, hands, outliers):
 		# flow and wrap the card sprites, organised by hands
 		x = self.CARD_PAD
@@ -83,20 +99,7 @@ class CardDisplay(ttk.Frame):
 				y += self.CARD_HEIGHT + self.TITLE_ABOVE_PAD
 			self.canvas.coords(self.hand_text_objects[hand], x, y)
 			y += self.TITLE_HEIGHT + self.TITLE_BELOW_PAD
-			col = 0
-			for i, card_label in enumerate(card_labels):
-				# go onto new row if exceed max per row
-				col = i % self.CARDS_PER_ROW
-
-				if col == 0:
-					x = self.CARD_PAD
-				else:
-					x += self.CARD_WIDTH + self.CARD_PAD
-
-				if i != 0 and col == 0:
-					y += self.CARD_HEIGHT+ self.CARD_PAD
-
-				self.canvas.coords(self.card_objects[card_label], x, y)
+			self.draw_cards(card_labels, x, y)
 		
 		# draw the outliers as well
 		if len(outliers) > 0:
@@ -107,17 +110,4 @@ class CardDisplay(ttk.Frame):
 				
 			self.canvas.coords(self.outlier_text_object, x, y)
 			y += self.TITLE_HEIGHT + self.TITLE_BELOW_PAD
-			col = 0
-			for i, card_label in enumerate(outliers):
-				# go onto new row if exceed max per row
-				col = i % self.CARDS_PER_ROW
-
-				if col == 0:
-					x = self.CARD_PAD
-				else:
-					x += self.CARD_WIDTH + self.CARD_PAD
-
-				if i != 0 and col == 0:
-					y += self.CARD_HEIGHT+ self.CARD_PAD
-
-				self.canvas.coords(self.card_objects[card_label], x, y)
+			self.draw_cards(outliers, x, y)
