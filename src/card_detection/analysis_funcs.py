@@ -111,5 +111,4 @@ def annotate(image, cards, hand_labels):
 		else:
 			colour = COLOURS[hand_labels[i]]
 		cv2.rectangle(image, (x_l, y_t), (x_r, y_b), colour, 2)
-		cv2.circle(image, (x, y), 3, (0, 255, 0), -1)
 		cv2.putText(image, f"[{id}]{cls}({hand_labels[i]}): {100*conf:.2f}%", (x_l, y_t-30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
