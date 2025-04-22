@@ -20,9 +20,9 @@ class CardDisplay(ttk.Frame):
 		# track the card objects that are drawn on the canvas
 		self.card_objects = {} # dict with k,v pair (card label:tk image object)
 
-	def update(self, detected_cards):
+	def update(self, detected_cards, hands):
 		self.update_card_objects(detected_cards)
-		self.update_canvas_layout()
+		self.update_canvas_layout(hands)
 
 	def update_card_objects(self, detected_cards):
 		# remove old cards no longer detected
@@ -45,7 +45,7 @@ class CardDisplay(ttk.Frame):
 
 		# TODO: later we might want duplicates?
 
-	def update_canvas_layout(self):
+	def update_canvas_layout(self, hands):
 		# flow and wrap the card sprites
 		row = 0
 		col = 0
