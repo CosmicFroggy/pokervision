@@ -17,7 +17,7 @@ class CardDisplay(ttk.Frame):
 		self.TITLE_BELOW_PAD = 10
 
 		# create canvas to draw cards on
-		self.canvas = tk.Canvas(self, bg="#008080", height=700)
+		self.canvas = tk.Canvas(self, bg="#008080")
 		self.canvas.pack(fill="both", expand=True)
 
 		# track the card objects that are drawn on the canvas

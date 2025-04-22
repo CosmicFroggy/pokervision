@@ -37,10 +37,10 @@ class App(tk.Tk):
 		
 		# layout
 		self.viewport = Viewport(self)  # create video panel
-		self.viewport.pack()
+		self.viewport.pack(side="left")
 
 		self.card_display = CardDisplay(self)  # create area to display cards
-		self.card_display.pack(fill="both")
+		self.card_display.pack(side="right", fill="both", expand=True)
 
 		self.menu_bar = MenuBar(self)  # create menu bar
 		self.config(menu=self.menu_bar)
@@ -71,6 +71,9 @@ class App(tk.Tk):
 		hands, outliers = group_hands(card_labels, hand_labels)
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 		annotate(frame, cards, hand_labels) # draw on the frame
+
+		# scale the image up
+		frame = cv2.resize(frame, (int(frame.shape[1]*1.5), int(frame.shape[0]*1.5)))
 
 		# convert image to tkinter usable format
 		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
