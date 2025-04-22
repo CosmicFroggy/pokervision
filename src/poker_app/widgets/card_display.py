@@ -18,7 +18,7 @@ class CardDisplay(ttk.Frame):
 		self.canvas.pack(fill="both", expand=True)
 
 		# track the card objects that are drawn on the canvas
-		self.card_objects = [] # list of tuples (card label, tk image object)
+		self.card_objects = {} # dict with k,v pair (card label:tk image object)
 
 	def update(self, detected_cards):
 		self.update_card_objects(detected_cards)
@@ -26,24 +26,22 @@ class CardDisplay(ttk.Frame):
 
 	def update_card_objects(self, detected_cards):
 		# remove old cards no longer detected
-		to_delete = [] # record indices to delete, avoid invalidation
-		for i, (card_label, card_object) in enumerate(self.card_objects):
+		to_delete = [] # track and delete after loop to avoid invalidation
+		for card_label, card_object in self.card_objects.items():
 			if card_label not in detected_cards:
 				self.canvas.delete(card_object)
-				to_delete.append(i)
-
-		to_delete.reverse()
-		for i in to_delete:
-			del self.card_objects[i]
-
+				to_delete.append(card_label)
+		
+		for card_label in to_delete:
+			del self.card_objects[card_label]
 
 		# add newly detected cards
-		previously_detected = [ val[0] for val in self.card_objects ]  # get the labels
-		new_cards = [ val for val in detected_cards if val not in previously_detected ]
+		previously_detected = self.card_objects.keys()  # get the labels
+		new_cards = [ card for card in detected_cards if card not in previously_detected ]
 
 		for card_label in set(new_cards): # change to set to remove duplicates
 			card_object = self.canvas.create_image(0, 0, image=self.master.card_sprites[card_label], anchor="nw")  # create canvas image object, init at 0,0
-			self.card_objects.append((card_label, card_object))
+			self.card_objects[card_label] = card_object
 
 		# TODO: later we might want duplicates?
 
@@ -51,7 +49,7 @@ class CardDisplay(ttk.Frame):
 		# flow and wrap the card sprites
 		row = 0
 		col = 0
-		for i, (_, card_object) in enumerate(self.card_objects):
+		for i, card_object in enumerate(self.card_objects.values()):
 			col = i % self.CARDS_PER_ROW
 			if i != 0 and col == 0:
 				row += 1
