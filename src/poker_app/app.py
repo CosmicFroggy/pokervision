@@ -68,7 +68,7 @@ class App(tk.Tk):
 		cards = detect_cards(frame)
 		card_labels = [card[1] for card in cards]
 		hand_labels = cluster(cards)  # use dbscan to identify hands by clustering
-		hands = group_hands(card_labels, hand_labels)
+		hands, outliers = group_hands(card_labels, hand_labels)
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 		annotate(frame, cards, hand_labels) # draw on the frame
 
@@ -79,7 +79,7 @@ class App(tk.Tk):
 		self.viewport.swap_buffer(frame)
 
 		# update canvas with card sprites
-		self.card_display.update(card_labels, hands)
+		self.card_display.update(card_labels, hands, outliers)
 	
 		# update settings once per frame, only if they were changed
 		self.update_settings()

@@ -81,14 +81,15 @@ def group_hands(card_labels, hand_labels):
 
 	# create list of n empty hands
 	hands = [ [] for hand in range(num_hands)]
+	outliers = []
 
 	# groups the cards into hand lists
 	for i, hand_label in enumerate(hand_labels):
 		if hand_label == -1:
-			continue
+			outliers.append(card_labels[i])
 		hands[hand_label].append(card_labels[i])
 
-	return hands
+	return hands, outliers
 
 
 def annotate(image, cards, hand_labels):

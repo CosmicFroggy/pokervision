@@ -19,10 +19,13 @@ class CardDisplay(ttk.Frame):
 
 		# track the card objects that are drawn on the canvas
 		self.card_objects = {} # dict with k,v pair (card label:tk image object)
+		self.hand_text_objects = [] # list of tk canvas text objects
+		self.outlier_text_object = None
 
-	def update(self, detected_cards, hands):
+	def update(self, detected_cards, hands, outliers):
 		self.update_card_objects(detected_cards)
-		self.update_canvas_layout(hands)
+		self.update_hand_text(len(hands), outliers=len(outliers)>0)
+		self.update_canvas_layout(hands, outliers)
 
 	def update_card_objects(self, detected_cards):
 		# remove old cards no longer detected
@@ -45,10 +48,33 @@ class CardDisplay(ttk.Frame):
 
 		# TODO: later we might want duplicates?
 
-	def update_canvas_layout(self, hands):
+	def update_hand_text(self, num_hands, outliers=False):
+		# destroy old hand titles if they're no longer needed
+		# or add new ones if we need more
+		num_labels = len(self.hand_text_objects)
+		while(num_labels != num_hands):
+			if num_hands > num_labels:
+				num_labels += 1
+				new_label = self.canvas.create_text(0,0, text=f"Hand {num_labels}:", fill="black", font=('Helvetica 20 bold'), anchor="nw")
+				self.hand_text_objects.append(new_label)
+			elif num_hands < num_labels:
+				num_labels -= 1
+				self.canvas.delete(self.hand_text_objects[-1])
+				self.hand_text_objects.pop()
+
+		# add or remove outlier label if needed
+		if outliers and self.outlier_text_object == None:
+			outlier_label = self.canvas.create_text(0,0, text=f"Outliers:", fill="black", font=('Helvetica 20 bold'), anchor="nw")
+			self.outlier_text_object = outlier_label
+		elif not outliers and self.outlier_text_object != None:
+			self.canvas.delete(self.outlier_text_object)
+			self.outlier_text_object = None
+
+	def update_canvas_layout(self, hands, outliers):
 		# flow and wrap the card sprites
 		row = 0
 		col = 0
+		hand = 0
 		for i, card_object in enumerate(self.card_objects.values()):
 			col = i % self.CARDS_PER_ROW
 			if i != 0 and col == 0:
