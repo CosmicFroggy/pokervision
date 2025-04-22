@@ -24,8 +24,35 @@ def detect_cards(image):
 			cls_label = labels[cls_id]
 			conf = prediction.boxes.conf[i].cpu().tolist()
 			x, y, w, h = prediction.boxes.xywh[i].cpu().tolist()
+			
 			cards.append((box_id, cls_label, conf, x, y, w, h))
 	
+	# to avoid detecting the same card twice because both of it's symbols 
+	# are exposed, we only count the top most one, checking by y coordinate
+	# TODO: this temporary fix does not account for if the hand is upside down
+	# need to think of a way to fix this. We are also assuming that this is a 
+	# 52 card deck and it is not possible for a card to appear twice
+	to_discard = []
+	for i, card1 in enumerate(cards):
+		if i == len(cards) - 1:
+			break
+		for j, card2 in enumerate(cards[i+1:]):
+			cls1 = card1[1]
+			y1 = card1[4]
+			cls2 = card2[1]
+			y2 = card2[4]
+			# discard the lower instance (remember y goes down the screen!)
+			if cls1 == cls2 and y1 <= y2:
+				to_discard.append(i+j+1)
+			elif cls1 == cls2 and y1 > y2:
+				to_discard.append(i)
+	
+	# sort the list and remove cards backwards from list to avoid invalidation
+	to_discard.sort()
+	to_discard.reverse()
+	for i in to_discard:
+		del cards[i]
+
 	return cards
 
 
