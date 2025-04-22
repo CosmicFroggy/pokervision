@@ -12,9 +12,12 @@ class CardDisplay(ttk.Frame):
 		self.CARD_HEIGHT = 124
 		self.CARD_PAD = 5
 		self.CARDS_PER_ROW = 6
+		self.TITLE_ABOVE_PAD = 20
+		self.TITLE_HEIGHT = 30
+		self.TITLE_BELOW_PAD = 10
 
 		# create canvas to draw cards on
-		self.canvas = tk.Canvas(self, bg="#008080", height=400)
+		self.canvas = tk.Canvas(self, bg="#008080", height=700)
 		self.canvas.pack(fill="both", expand=True)
 
 		# track the card objects that are drawn on the canvas
@@ -54,13 +57,13 @@ class CardDisplay(ttk.Frame):
 		num_labels = len(self.hand_text_objects)
 		while(num_labels != num_hands):
 			if num_hands > num_labels:
-				num_labels += 1
 				new_label = self.canvas.create_text(0,0, text=f"Hand {num_labels}:", fill="black", font=('Helvetica 20 bold'), anchor="nw")
 				self.hand_text_objects.append(new_label)
+				num_labels += 1
 			elif num_hands < num_labels:
-				num_labels -= 1
 				self.canvas.delete(self.hand_text_objects[-1])
 				self.hand_text_objects.pop()
+				num_labels -= 1
 
 		# add or remove outlier label if needed
 		if outliers and self.outlier_text_object == None:
@@ -71,14 +74,50 @@ class CardDisplay(ttk.Frame):
 			self.outlier_text_object = None
 
 	def update_canvas_layout(self, hands, outliers):
-		# flow and wrap the card sprites
-		row = 0
-		col = 0
-		hand = 0
-		for i, card_object in enumerate(self.card_objects.values()):
-			col = i % self.CARDS_PER_ROW
-			if i != 0 and col == 0:
-				row += 1
-			x = self.CARD_PAD + col*(self.CARD_PAD + self.CARD_WIDTH)
-			y = self.CARD_PAD + row*(self.CARD_PAD + self.CARD_HEIGHT)
-			self.canvas.coords(card_object, x, y)
+		# flow and wrap the card sprites, organised by hands
+		x = self.CARD_PAD
+		y = self.CARD_PAD
+		for hand, card_labels in enumerate(hands):
+			if hand != 0:
+				x = self.CARD_PAD
+				y += self.CARD_HEIGHT + self.TITLE_ABOVE_PAD
+			self.canvas.coords(self.hand_text_objects[hand], x, y)
+			y += self.TITLE_HEIGHT + self.TITLE_BELOW_PAD
+			col = 0
+			for i, card_label in enumerate(card_labels):
+				# go onto new row if exceed max per row
+				col = i % self.CARDS_PER_ROW
+
+				if col == 0:
+					x = self.CARD_PAD
+				else:
+					x += self.CARD_WIDTH + self.CARD_PAD
+
+				if i != 0 and col == 0:
+					y += self.CARD_HEIGHT+ self.CARD_PAD
+
+				self.canvas.coords(self.card_objects[card_label], x, y)
+		
+		# draw the outliers as well
+		if len(outliers) > 0:
+			# add padding if we've drawn rows above
+			if len(hands) > 0:
+				x = self.CARD_PAD
+				y += self.CARD_HEIGHT + self.TITLE_ABOVE_PAD
+				
+			self.canvas.coords(self.outlier_text_object, x, y)
+			y += self.TITLE_HEIGHT + self.TITLE_BELOW_PAD
+			col = 0
+			for i, card_label in enumerate(outliers):
+				# go onto new row if exceed max per row
+				col = i % self.CARDS_PER_ROW
+
+				if col == 0:
+					x = self.CARD_PAD
+				else:
+					x += self.CARD_WIDTH + self.CARD_PAD
+
+				if i != 0 and col == 0:
+					y += self.CARD_HEIGHT+ self.CARD_PAD
+
+				self.canvas.coords(self.card_objects[card_label], x, y)
