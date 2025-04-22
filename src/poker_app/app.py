@@ -14,6 +14,8 @@ class App(tk.Tk):
 		self.title(title)
 		self.protocol("WM_DELETE_WINDOW", self.close)
 
+		self.geometry("1600x720")
+
 		# TODO: Lock the window size
 
 		# get access to camera
