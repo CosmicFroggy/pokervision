@@ -2,7 +2,18 @@ import tkinter as tk
 
 
 class SettingsWindow(tk.Toplevel):
+	"""
+	Pop-out window used to adjust the settings.
+	"""
+
 	def __init__(self, master):
+		"""
+		Initialise instance of SettingsWindow.
+		
+		Args:
+			master (App, or similar tk object): The parent of the window.
+		"""
+
 		super().__init__(master)
 		self.master = master
 		self.title("Settings")
@@ -34,5 +45,9 @@ class SettingsWindow(tk.Toplevel):
 		# TODO: add settings for clustering to settings window
 
 	def close(self):
+		"""
+		Close the window.
+		"""
+
 		self.master.menu_bar.entryconfig("Settings", state="normal")
 		self.destroy()

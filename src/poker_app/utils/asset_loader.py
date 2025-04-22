@@ -2,6 +2,15 @@ from PIL import Image, ImageTk
 
 
 def load_sprites(atlas_path):
+	"""
+	Load the sprites into a dictionary when given the path to .txt file written in specific format.
+
+	Args:
+		atlas_path (str): Path to the sprite atlas .txt file.
+
+	Returns:
+		dict[str, ImageTk.PhotoImage]: A dictionary of (sprite name, image).
+	"""
 
 	# get directory that atlas is in
 	dir_path = atlas_path[:atlas_path.rfind("/") + 1]

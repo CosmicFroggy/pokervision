@@ -7,7 +7,18 @@ COLOURS = list(map(distinctipy.get_hex, [(0.0, 1.0, 0.0), (1.0, 0.0, 1.0), (0.0,
 
 
 class CardDisplay(ttk.Frame):
+	"""
+	Panel that displays the detected playing cards as sprites and organises them into hands.
+	"""
+
 	def __init__(self, master):
+		"""
+		Initialise instance of CardDisplay.
+
+		Args:
+			master (App, or similar tk object): The parent of the CardDisplay.
+		"""
+
 		super().__init__(master)
 		self.master = master
 
@@ -30,11 +41,27 @@ class CardDisplay(ttk.Frame):
 		self.outlier_text_object = None
 
 	def update(self, detected_cards, hands, outliers):
+		"""
+		Update the displayed elements.
+
+		Args:
+			detected_cards (list[str]): List of labels for detected cards.
+			hands (list[list[str]]): Lists of labels organised into hands.
+			outliers (list[str]): List of labels for cards not belonging to a hand.
+		"""
+
 		self.update_card_objects(detected_cards)
 		self.update_hand_text(len(hands), outliers=len(outliers)>0)
 		self.update_canvas_layout(hands, outliers)
 
 	def update_card_objects(self, detected_cards):
+		"""
+		Adds new sprites to the canvas and removes stale ones. Only the sprites of cards detected this frame will be displayed.
+
+		args:
+			detected_cards (list[str]): List of labels for detected cards.
+		"""
+
 		# remove old cards no longer detected
 		to_delete = [] # track and delete after loop to avoid invalidation
 		for card_label, card_object in self.card_objects.items():
@@ -56,6 +83,14 @@ class CardDisplay(ttk.Frame):
 		# TODO: later we might want duplicates?
 
 	def update_hand_text(self, num_hands, outliers=False):
+		"""
+		Adds new hand titles to the canvas and removes stale ones. Only the hands detected this frame will be displayed. An outlier title will also be added if there are cards belonging to no hand.
+
+		args:
+			num_hands (int): The number of detected hands.
+			outliers (bool, optional): Whether outliers were detected.
+		"""
+
 		# destroy old hand titles if they're no longer needed
 		# or add new ones if we need more
 		num_labels = len(self.hand_text_objects)
@@ -78,6 +113,15 @@ class CardDisplay(ttk.Frame):
 			self.outlier_text_object = None
 
 	def draw_cards(self, card_labels, x, y):
+		"""
+		Rearranges the card sprites corresponding to card_labels on the canvas into rows of length self.CARDS_PER_ROW starting at (x,y).
+
+		args:
+			card_labels (list[str]): List of labels of cards to draw.
+			x (int): x-coordinate of start of first card row.
+			y (int): y-coordinate of start of first card row.
+		"""
+
 		col = 0
 		for i, card_label in enumerate(card_labels):
 			# go onto new row if exceed max per row
@@ -94,6 +138,14 @@ class CardDisplay(ttk.Frame):
 			self.canvas.coords(self.card_objects[card_label], x, y)
 
 	def update_canvas_layout(self, hands, outliers):
+		"""
+		Reposition the card sprites and hand titles on the canvas.
+
+		Args:
+			hands (list[list[str]]): Lists of card labels organised into hands.
+			outliers (list[str]): List of card labels of cards belonging to no hand.
+		"""
+
 		# flow and wrap the card sprites, organised by hands
 		x = self.CARD_PAD
 		y = self.CARD_PAD

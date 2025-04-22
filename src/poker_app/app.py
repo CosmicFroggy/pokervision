@@ -9,7 +9,18 @@ from utils import Camera, load_sprites
 
 # main app class
 class App(tk.Tk):
+	"""
+	Top-level class of my program. Use run method to start the program.
+	"""
+
 	def __init__(self, title):
+		"""
+		Initilialise an App instance.
+
+		Args:
+			title (str): The title of the program, displayed on window border.
+		"""
+
 		super().__init__()
 		self.title(title)
 		self.protocol("WM_DELETE_WINDOW", self.close)
@@ -47,14 +58,22 @@ class App(tk.Tk):
 		self.menu_bar = MenuBar(self)  # create menu bar
 		self.config(menu=self.menu_bar)
 
-	def setting_update_notify(self, subject, setting):
-		self.settings[subject][setting][1] = True
+	def setting_update_notify(self, category, setting):
+		"""
+		Notify the program that the setting has changed so that it can update the onboard camera settings once at the end of frame. See update_settings method.
+
+		Args:
+			category (str): The setting category, e.g. "CAMERA".
+			setting (str): The setting that has been changed, e.g. "FOCUS".
+		"""
+
+		self.settings[category][setting][1] = True
 
 	def update_settings(self):
-		# update the settings only once at the end of the frame
-		# and only if they were changed
+		"""
+		Update the onboard camera settings to match the values set by the program. Used to update the camera settings only once at the end of the frame and only if they were changed. This improves the frame rate when adjusting settings.
+		"""
 
-		# camera settings
 		camera_settings = self.settings["CAMERA"]
 		for setting, (val, changed) in camera_settings.items():
 			if changed:
@@ -62,6 +81,8 @@ class App(tk.Tk):
 				camera_settings[setting][1] = False
 
 	def update(self):
+		"""
+		Update all elements of the program. Running this starts an update loop."""
 
 		# read image from camera
 		frame = self.cam.read()
@@ -71,7 +92,7 @@ class App(tk.Tk):
 		
 		# use machine learning to detect cards
 		cards = detect_cards(frame)
-		card_labels = [card[1] for card in cards]
+		card_labels = [card.cls for card in cards]
 		hand_labels = cluster(cards)  # use dbscan to identify hands by clustering
 		hands, outliers = group_hands(card_labels, hand_labels)
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -94,10 +115,18 @@ class App(tk.Tk):
 		self.after(10, self.update)
 
 	def run(self):
+		"""
+		Start the program.
+		"""
+
 		self.update()
 		self.mainloop()
 
 	def close(self):
+		"""
+		Close the program.
+		"""
+
 		self.cam.release()
 		self.destroy()
 
