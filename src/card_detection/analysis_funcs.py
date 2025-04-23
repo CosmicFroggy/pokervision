@@ -69,6 +69,9 @@ def detect_cards(image):
 			cls_label = LABELS[cls_id]
 			conf = prediction.boxes.conf[i].cpu().tolist()
 			x, y, w, h = prediction.boxes.xywh[i].cpu().tolist()
+
+			if conf < 0.5:
+				continue
 			
 			cards.append(Card(box_id, cls_label, conf, x, y, w, h))
 	
