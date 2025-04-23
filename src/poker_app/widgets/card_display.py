@@ -40,7 +40,7 @@ class CardDisplay(ttk.Frame):
 		self.hand_text_objects = [] # list of tk canvas text objects
 		self.outlier_text_object = None
 
-	def update(self, detected_cards, hands, outliers):
+	def update(self, detected_cards, hands, outliers, hand_evals):
 		"""
 		Update the displayed elements.
 
@@ -48,10 +48,11 @@ class CardDisplay(ttk.Frame):
 			detected_cards (list[str]): List of labels for detected cards.
 			hands (list[list[str]]): Lists of labels organised into hands.
 			outliers (list[str]): List of labels for cards not belonging to a hand.
+			hand_evals (list[str]): List of evaluation of the hands, e.g. "Straight flush".
 		"""
 
 		self.update_card_objects(detected_cards)
-		self.update_hand_text(len(hands), outliers=len(outliers)>0)
+		self.update_hand_text(len(hands), hand_evals, outliers=len(outliers)>0)
 		self.update_canvas_layout(hands, outliers)
 
 	def update_card_objects(self, detected_cards):
@@ -82,12 +83,13 @@ class CardDisplay(ttk.Frame):
 
 		# TODO: later we might want duplicates?
 
-	def update_hand_text(self, num_hands, outliers=False):
+	def update_hand_text(self, num_hands, hand_evals, outliers=False):
 		"""
 		Adds new hand titles to the canvas and removes stale ones. Only the hands detected this frame will be displayed. An outlier title will also be added if there are cards belonging to no hand.
 
 		args:
 			num_hands (int): The number of detected hands.
+			hand_evals (list[str]): List of evaluation of the hands, e.g. "Straight flush".
 			outliers (bool, optional): Whether outliers were detected.
 		"""
 
@@ -103,6 +105,14 @@ class CardDisplay(ttk.Frame):
 				self.canvas.delete(self.hand_text_objects[-1])
 				self.hand_text_objects.pop()
 				num_labels -= 1
+
+		# add evaluations, replace old ones
+		for i, hand_text_object  in enumerate(self.hand_text_objects):
+			old_text = self.canvas.itemcget(hand_text_object, "text")
+			start = old_text.find(":")
+			new_text = old_text[:start+1] + " " + hand_evals[i]
+			self.canvas.itemconfigure(hand_text_object, text=new_text)
+
 
 		# add or remove outlier label if needed
 		if outliers and self.outlier_text_object == None:
