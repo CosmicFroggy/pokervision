@@ -2,6 +2,7 @@ import cv2
 from ultralytics import YOLO
 from sklearn.cluster import DBSCAN
 import distinctipy
+from pokerkit import ShortDeckHoldemLookup
 
 
 LABELS = ['10c', '10d', '10h', '10s', '2c', '2d', '2h', '2s', '3c', '3d', '3h', '3s', '4c', '4d', '4h', '4s', '5c', '5d', '5h', '5s', '6c', '6d', '6h', '6s', '7c', '7d', '7h', '7s', '8c', '8d', '8h', '8s', '9c', '9d', '9h', '9s', 'Ac', 'Ad', 'Ah', 'As', 'Jc', 'Jd', 'Jh', 'Js', 'Kc', 'Kd', 'Kh', 'Ks', 'Qc', 'Qd', 'Qh', 'Qs']
@@ -159,6 +160,49 @@ def group_hands(card_labels, hand_labels):
 		hands[hand_label].append(card_labels[i])
 
 	return hands, outliers
+
+
+def identifyHands(hands):
+	"""
+	Returns the values of a list of 5 card poker hands.
+
+	Args:
+		hands (list[list[str]]): A list of list of card labels - the list of hands to be evaluated.
+
+	Returns:
+		list[str]: A list of hand evaluations.
+	"""
+
+	evaluations = []
+	for hand in hands:
+		# check the hand has 5 cards
+		hand_size = len(hand)
+		if hand_size < 5:
+			evaluations.append("Not enough cards!")
+			continue
+		elif hand_size > 5:
+			evaluations.append("Too many cards!")
+			continue
+
+		# create copy of the list to iterate over so we can modify
+		hand = hand[:]
+
+		# pokerkit expects "Th" instead of "10h" for example
+		for i, label in enumerate(hand):
+			if label[0:2] == "10":
+				hand[i] = "T" + label[2]
+		
+		# evaluate hand using pokerkit
+		try:
+			evaluation = str(ShortDeckHoldemLookup().get_entry("".join(hand)).label)
+		except ValueError:
+			evaluation = "Invalid hand!"
+		
+		evaluations.append(evaluation)
+	
+	return evaluations
+
+		
 
 
 def annotate(image, cards, hand_labels):

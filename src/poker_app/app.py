@@ -2,7 +2,7 @@ import tkinter as tk
 import cv2
 from PIL import Image, ImageTk
 
-from card_detection import detect_cards, cluster, annotate, group_hands
+from card_detection import detect_cards, cluster, annotate, group_hands, identifyHands
 from widgets import Viewport, CardDisplay, MenuBar
 from utils import Camera, load_sprites
 
@@ -96,6 +96,7 @@ class App(tk.Tk):
 		card_labels = [card.cls for card in cards]
 		hand_labels = cluster(cards)  # use dbscan to identify hands by clustering
 		hands, outliers = group_hands(card_labels, hand_labels)
+		print(identifyHands(hands))
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 		annotate(frame, cards, hand_labels) # draw on the frame
 
