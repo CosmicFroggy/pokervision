@@ -1,6 +1,6 @@
 import tkinter as tk
 
-from widgets import SettingsWindow
+from poker_app.widgets import SettingsWindow
 
 
 class MenuBar(tk.Menu):

@@ -3,8 +3,8 @@ import cv2
 from PIL import Image, ImageTk
 
 from card_detection import detect_cards, cluster, annotate, group_hands, identifyHands
-from widgets import Viewport, CardDisplay, MenuBar
-from utils import Camera, load_sprites
+from poker_app.widgets import Viewport, CardDisplay, MenuBar
+from poker_app.utils import Camera, load_sprites
 
 
 # main app class
