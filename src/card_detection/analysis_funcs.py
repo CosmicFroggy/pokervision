@@ -48,7 +48,6 @@ class Card:
 		self.h = h
 
 
-
 def detect_cards(image):
 	"""
 	Detects the position of the suit and rank of playing cards on the image passed in using YOLO object detection. The top most (in frame) suitrank is selected and all duplicates are discarded. 
@@ -231,4 +230,5 @@ def annotate(image, cards, hand_labels):
 		else:
 			colour = COLOURS[hand_labels[i]]
 		cv2.rectangle(image, (x_l, y_t), (x_r, y_b), colour, 2)
-		cv2.putText(image, f"{card.cls}: {card.conf:.2f}", (x_l, y_t-15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+		cv2.rectangle(image, (x_l, y_t-30), (x_l+80, y_t-10), colour, -1)
+		cv2.putText(image, f"{card.cls}: {card.conf:.2f}", (x_l, y_t-15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
