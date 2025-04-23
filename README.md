@@ -6,7 +6,7 @@ What I've achieved so far:
 
 * Built a tkinter app to house my project
 * Created wrapper for opencv camera which is used to adjust the settings (these are temperamental at the moment!)
-* Object detection with YOLO model, with trained waits from [here](https://github.com/PD-Mera/Playing-Cards-Detection)
+* Object detection with YOLO model, with trained weights from [here](https://github.com/PD-Mera/Playing-Cards-Detection)
 * Annotated the cards in the frame
 * Used DBSCAN clustering to identify hands by proximity
 * Identified hand values using the [pokerkit](https://github.com/uoftcprg/pokerkit) package
