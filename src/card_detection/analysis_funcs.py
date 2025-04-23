@@ -162,7 +162,7 @@ def group_hands(card_labels, hand_labels):
 	return hands, outliers
 
 
-def identifyHands(hands):
+def identify_hands(hands):
 	"""
 	Returns the values of a list of 5 card poker hands.
 

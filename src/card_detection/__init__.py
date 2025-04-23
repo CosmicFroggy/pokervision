@@ -1,1 +1,1 @@
-from .analysis_funcs import detect_cards, cluster, annotate, group_hands, identifyHands
+from .analysis_funcs import detect_cards, cluster, annotate, group_hands, identify_hands
