@@ -23,6 +23,12 @@ _COLOURS = list(map(distinctipy.get_rgb256, [(0.0, 1.0, 0.0), (1.0, 0.0, 1.0), (
 _detector_model = YOLO("./res/models/yolov8s_playing_cards.pt")
 
 
+# to avoid detecting the same card twice because both of it's symbols 
+# are exposed, we only count the top most one, checking by y coordinate
+# TODO: this temporary fix does not account for if the hand is upside down
+# need to think of a way to fix this. We are also assuming that this is a 
+# 52 card deck and it is not possible for a card to appear twice
+
 def detect_cards(image):
 	"""
 	Detects the position of the suit and rank of playing cards on the image passed in using YOLO object detection. The top most (in frame) suitrank is selected and all duplicates are discarded. 
@@ -35,6 +41,7 @@ def detect_cards(image):
 	"""
 
 	cards = []
+	found_labels = [] # keep track so we can eliminate duplicates
 	prediction = _detector_model.track(image, verbose=False, persist=True)[0]
 	if prediction.boxes.id != None:
 		for i, box_id in enumerate(prediction.boxes.id):
@@ -45,36 +52,24 @@ def detect_cards(image):
 			conf = prediction.boxes.conf[i].cpu().tolist()
 			x, y, w, h = prediction.boxes.xywh[i].cpu().tolist()
 
+			# discard unconfident predictions
 			if conf < 0.5:
 				continue
 			
-			cards.append(Card(box_id, cls_label, conf, x, y, w, h))
-	
-	# to avoid detecting the same card twice because both of it's symbols 
-	# are exposed, we only count the top most one, checking by y coordinate
-	# TODO: this temporary fix does not account for if the hand is upside down
-	# need to think of a way to fix this. We are also assuming that this is a 
-	# 52 card deck and it is not possible for a card to appear twice
-	to_discard = set() # make it a set so were not removing same index twice
-	for i, card1 in enumerate(cards):
-		if i == len(cards) - 1:
-			break
-		for j, card2 in enumerate(cards[i+1:]):
-			cls1 = card1.cls
-			y1 = card1.box.y
-			cls2 = card2.cls
-			y2 = card2.box.y
-			# discard the lower instance (remember y goes down the screen!)
-			if cls1 == cls2 and y1 <= y2:
-				to_discard.add(i+j+1)
-			elif cls1 == cls2 and y1 > y2:
-				to_discard.add(i)
-	
-	# sort the list and remove cards backwards from list to avoid invalidation
-	to_discard = sorted(to_discard)
-	to_discard.reverse()
-	for i in to_discard:
-		del cards[i]
+			# check that we haven't found this card before
+			if cls_label not in found_labels:
+				found_labels.append(cls_label)
+				cards.append(Card(box_id, cls_label, conf, x, y, w, h))
+				continue
+			
+			# if we have, discard whichever the lowest card is on the screen
+			duplicate = next(filter(lambda card: card.cls == cls_label, cards))
+			dup_y = duplicate.box.y
+			if y <= dup_y: # remember y goes down the screen
+				cards.remove(duplicate)
+				cards.append(Card(box_id, cls_label, conf, x, y, w, h))
+
+			# if y > dup_y we just continue without adding
 
 	return cards
 

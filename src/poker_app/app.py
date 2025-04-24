@@ -98,7 +98,6 @@ class App(tk.Tk):
 		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 		annotate(frame, cards) # draw on the frame
 
-
 		# convert image to tkinter usable format
 		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
 
