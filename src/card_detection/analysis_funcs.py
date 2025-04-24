@@ -5,20 +5,20 @@ import distinctipy
 from pokerkit import StandardLookup
 
 
-LABELS = ['10c', '10d', '10h', '10s', '2c', '2d', '2h', '2s', '3c', '3d', '3h', '3s', '4c', '4d', '4h', '4s', '5c', '5d', '5h', '5s', '6c', '6d', '6h', '6s', '7c', '7d', '7h', '7s', '8c', '8d', '8h', '8s', '9c', '9d', '9h', '9s', 'Ac', 'Ad', 'Ah', 'As', 'Jc', 'Jd', 'Jh', 'Js', 'Kc', 'Kd', 'Kh', 'Ks', 'Qc', 'Qd', 'Qh', 'Qs']
+_LABELS = ['10c', '10d', '10h', '10s', '2c', '2d', '2h', '2s', '3c', '3d', '3h', '3s', '4c', '4d', '4h', '4s', '5c', '5d', '5h', '5s', '6c', '6d', '6h', '6s', '7c', '7d', '7h', '7s', '8c', '8d', '8h', '8s', '9c', '9d', '9h', '9s', 'Ac', 'Ad', 'Ah', 'As', 'Jc', 'Jd', 'Jh', 'Js', 'Kc', 'Kd', 'Kh', 'Ks', 'Qc', 'Qd', 'Qh', 'Qs']
 
 # generate 15 distinct colours to use to label the groups
 # COLOURS = list(map(distinctipy.get_rgb256, distinctipy.get_colors(15)))
 # hard code these for now so we can use them across classes,
 # TODO: find a way more elegant solution to this
-COLOURS = list(map(distinctipy.get_rgb256, [(0.0, 1.0, 0.0), (1.0, 0.0, 1.0), (0.0, 0.5, 1.0), (1.0, 0.5, 0.0), (0.5, 0.75, 0.5), (0.39678717264876207, 0.13197211806938614, 0.5819931085974647), (0.827283646369405, 0.0138353214106115, 0.1133231387287158), (0.9473827093671684, 0.5084359241017635, 0.8346452862150692), (0.8164329577113776, 0.9928299927881508, 0.009255363614705248), (0.019434052374008415, 0.5050126764558274, 0.11088395395899864), (0.0, 1.0, 1.0), (0.0, 0.0, 1.0), (0.0, 1.0, 0.5), (0.40589042036593503, 0.22354084754929282, 0.10318437663226065), (0.997383433128567, 0.8260316549965426, 0.48300860517842303)]))
+_COLOURS = list(map(distinctipy.get_rgb256, [(0.0, 1.0, 0.0), (1.0, 0.0, 1.0), (0.0, 0.5, 1.0), (1.0, 0.5, 0.0), (0.5, 0.75, 0.5), (0.39678717264876207, 0.13197211806938614, 0.5819931085974647), (0.827283646369405, 0.0138353214106115, 0.1133231387287158), (0.9473827093671684, 0.5084359241017635, 0.8346452862150692), (0.8164329577113776, 0.9928299927881508, 0.009255363614705248), (0.019434052374008415, 0.5050126764558274, 0.11088395395899864), (0.0, 1.0, 1.0), (0.0, 0.0, 1.0), (0.0, 1.0, 0.5), (0.40589042036593503, 0.22354084754929282, 0.10318437663226065), (0.997383433128567, 0.8260316549965426, 0.48300860517842303)]))
 
 
 # create model using previously trained weights
 # model = YOLO("CardDetector.pt")
 # using model from https://github.com/PD-Mera/Playing-Cards-Detection
 # while I fine tune my own
-detector_model = YOLO("./res/models/yolov8s_playing_cards.pt")
+_detector_model = YOLO("./res/models/yolov8s_playing_cards.pt")
 
 
 class Card:
@@ -60,13 +60,13 @@ def detect_cards(image):
 	"""
 
 	cards = []
-	prediction = detector_model.track(image, verbose=False, persist=True)[0]
+	prediction = _detector_model.track(image, verbose=False, persist=True)[0]
 	if prediction.boxes.id != None:
 		for i, box_id in enumerate(prediction.boxes.id):
 			# get attributes of identified card
 			box_id = int(box_id.cpu().tolist())
 			cls_id = int(prediction.boxes.cls[i].cpu().tolist())
-			cls_label = LABELS[cls_id]
+			cls_label = _LABELS[cls_id]
 			conf = prediction.boxes.conf[i].cpu().tolist()
 			x, y, w, h = prediction.boxes.xywh[i].cpu().tolist()
 
@@ -231,7 +231,7 @@ def annotate(image, cards, hand_labels):
 		if hand_labels[i] == -1:
 			colour = (127, 127, 127)
 		else:
-			colour = COLOURS[hand_labels[i]]
+			colour = _COLOURS[hand_labels[i]]
 		cv2.rectangle(image, (x_l, y_t), (x_r, y_b), colour, 2)
 		cv2.rectangle(image, (x_l, y_t-30), (x_l+80, y_t-10), colour, -1)
 		cv2.putText(image, f"{card.cls}: {card.conf:.2f}", (x_l, y_t-15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
