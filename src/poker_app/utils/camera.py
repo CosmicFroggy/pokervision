@@ -11,7 +11,7 @@ class Camera():
 		"""
 
 		# get camera feed
-		self.cam = cv2.VideoCapture(0)
+		self.cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 		# TODO: should I use enum here?
 		self.prop_map = {
