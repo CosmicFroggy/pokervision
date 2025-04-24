@@ -108,7 +108,7 @@ class App(tk.Tk):
 		self.viewport.swap_buffer(frame)
 
 		# update canvas with card sprites
-		self.card_display.update(card_labels, hands, outliers, hand_evals)
+		self.card_display.update(hands, hand_evals, outliers)
 	
 		# update settings once per frame, only if they were changed
 		self.update_settings()
