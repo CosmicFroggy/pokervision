@@ -35,18 +35,18 @@ class CardDisplay(ttk.Frame):
 		self.canvas = tk.Canvas(self, bg="#008080")
 		self.canvas.pack(fill="both", expand=True)
 
-	def __draw_cards(self, card_labels, x, y):
+	def __draw_cards(self, cards, x, y):
 		"""
-		Draws the card sprites corresponding to card_labels on the canvas into rows of length self.CARDS_PER_ROW starting at (x,y).
+		Draws the card sprites corresponding to given cards on the canvas into rows of length self.CARDS_PER_ROW starting at (x,y).
 
 		args:
-			card_labels (list[str]): List of labels of cards to draw.
+			cards (list[Card]): Cards to be drawn.
 			x (int): x-coordinate of start of first card row.
 			y (int): y-coordinate of start of first card row.
 		"""
 
 		col = 0
-		for i, card_label in enumerate(card_labels):
+		for i, card in enumerate(cards):
 			# go onto new row if exceed max per row
 			col = i % self.CARDS_PER_ROW
 
@@ -58,16 +58,15 @@ class CardDisplay(ttk.Frame):
 			if i != 0 and col == 0:
 				y += self.CARD_HEIGHT+ self.CARD_PAD
 
-			self.canvas.create_image(x, y, image=self.master.card_sprites[card_label], anchor="nw")  # create canvas image object, init at 0,0
+			self.canvas.create_image(x, y, image=self.master.card_sprites[card.cls], anchor="nw")  # create canvas image object, init at 0,0
 
-	def update(self, hands, hand_evals, outliers):
+	def update(self, hands, outliers):
 		"""
-		Draws the hand titles and evaluations with their corresponding card sprites. Also draws outliers separately
+		Draws the hand titles and evaluations with their corresponding card sprites. Also draws outliers separately.
 
 		Args:
-			hands (list[list[str]]): Lists of card labels organised into hands.
-			hand_evals (list[str]): List of corresponding hand evaluations.
-			outliers (list[str]): List of card labels of cards belonging to no hand.
+			hands (list[Hand]): Hands to be drawn.
+			outliers (list[Card]): Outliers to be drawn.
 		"""
 
 		# clear the canvas
@@ -76,13 +75,13 @@ class CardDisplay(ttk.Frame):
 		# flow and wrap the card sprites, organised by hands
 		x = self.CARD_PAD
 		y = self.CARD_PAD
-		for hand, card_labels in enumerate(hands):
-			if hand != 0:
+		for i, hand in enumerate(hands):
+			if i != 0:
 				x = self.CARD_PAD
 				y += self.CARD_HEIGHT + self.TITLE_ABOVE_PAD
-			self.canvas.create_text(x, y, text=f"Hand {hand + 1}: {hand_evals[hand]}", fill=_COLOURS[hand], font=('Helvetica 20 bold'), anchor="nw")
+			self.canvas.create_text(x, y, text=f"Hand {i + 1}: {hand.evaluate()}", fill=_COLOURS[i], font=('Helvetica 20 bold'), anchor="nw")
 			y += self.TITLE_HEIGHT + self.TITLE_BELOW_PAD
-			self.__draw_cards(card_labels, x, y)
+			self.__draw_cards(hand.cards, x, y)
 		
 		# draw the outliers as well
 		if len(outliers) > 0:
