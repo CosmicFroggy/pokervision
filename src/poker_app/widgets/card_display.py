@@ -106,3 +106,5 @@ class CardDisplay(ttk.Frame):
 
 		# update scroll region for scrollbar
 		self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+		# TODO: This seems to have made us lose the outer padding, fix!
