@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import cv2
 from PIL import Image, ImageTk
 
@@ -62,16 +63,16 @@ class App(tk.Tk):
 		self.config(menu=self.menu_bar)
 
 		# use paned window so we can resize each panel using sash
-		self.main_window = tk.PanedWindow(self) 
+		self.main_window = ttk.PanedWindow(self, orient="horizontal") 
 		self.main_window.pack(fill="both", expand=True)
 
 		# create video panel
 		self.viewport = Viewport(self, self.main_window)  
-		self.main_window.add(self.viewport)
+		self.main_window.add(self.viewport, weight=1)
 
 		# create area to display cards
 		self.card_display = CardDisplay(self, self.main_window)  
-		self.main_window.add(self.card_display)
+		self.main_window.add(self.card_display, weight=0)
 
 
 	def setting_update_notify(self, category, setting):
