@@ -112,6 +112,7 @@ class App(tk.Tk):
 		
 		# reset the camera if its not active
 		else:
+			# TODO: add message on screen to show that camera missing 
 			self.cam.reset()
 		
 		# update canvas with card sprites
