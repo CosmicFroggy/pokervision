@@ -5,15 +5,17 @@ from tkinter import ttk
 class Viewport(ttk.Frame):
 	"""Panel used to display a frame of video input."""
 
-	def __init__(self, master):
+	def __init__(self, app, master):
 		"""
 		Initialise instance of Viewport.
 
 		Args:
-			master (App, or similar tk object): the parent of the Viewport.
+			app (App): Reference to main App instance.
+			master (some tk object): the parent of the Viewport.
 		"""
 
 		super().__init__(master)
+		self.app = app
 		self.master = master
 		self.view = tk.Label(self)
 		self.view.pack()

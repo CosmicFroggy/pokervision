@@ -12,15 +12,17 @@ class CardDisplay(ttk.Frame):
 	Panel that displays the detected playing cards as sprites and organises them into hands.
 	"""
 
-	def __init__(self, master):
+	def __init__(self, app, master):
 		"""
 		Initialise instance of CardDisplay.
 
 		Args:
-			master (App, or similar tk object): The parent of the CardDisplay.
+			app (App): Reference to main App instance.
+			master (some tk object): The parent of the CardDisplay.
 		"""
 
 		super().__init__(master)
+		self.app = app
 		self.master = master
 
 		# card attributes
@@ -43,7 +45,7 @@ class CardDisplay(ttk.Frame):
 		self.scrollbar.place(relx=1, rely=0, relheight=1, anchor="ne")
 		
 		# add mouse scrolling
-		self.canvas.bind("<MouseWheel>", lambda event: self.canvas.yview_scroll(-int(np.sign(event.delta)*master.scroll_speed), "units")) 
+		self.canvas.bind("<MouseWheel>", lambda event: self.canvas.yview_scroll(-int(np.sign(event.delta)*app.scroll_speed), "units")) 
 
 	def __draw_cards(self, cards, x, y):
 		"""
@@ -68,7 +70,7 @@ class CardDisplay(ttk.Frame):
 			if i != 0 and col == 0:
 				y += self.CARD_HEIGHT+ self.CARD_PAD
 
-			self.canvas.create_image(x, y, image=self.master.card_sprites[card.cls], anchor="nw")  # create canvas image object, init at 0,0
+			self.canvas.create_image(x, y, image=self.app.card_sprites[card.cls], anchor="nw")  # create canvas image object, init at 0,0
 
 	def update(self, hands, outliers):
 		"""

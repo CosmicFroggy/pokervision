@@ -8,16 +8,18 @@ class MenuBar(tk.Menu):
 	Menu bar used to access the settings window.
 	"""
 
-	def __init__(self, master):
+	def __init__(self, app, master):
 		"""
 		Initialise Instance of MenuBar.
 
 		Args:
-			master (App, or similar tk object): The parent of the menu bar.
+			app (App): Reference to main App instance.
+			master (some tk object): The parent of the MenuBar.
 		"""
 		
 		super().__init__(master)
+		self.app = app
 		self.master = master
 
 		# spawn the settings window when clicked
-		self.add_command(label="Settings", command= lambda : SettingsWindow(master))
+		self.add_command(label="Settings", command= lambda : SettingsWindow(app, app))

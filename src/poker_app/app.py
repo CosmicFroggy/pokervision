@@ -54,15 +54,25 @@ class App(tk.Tk):
 		# set speed for scrolling with scroll wheel
 		self.scroll_speed = 2
 		
-		# layout
-		self.viewport = Viewport(self)  # create video panel
-		self.viewport.pack(side="left")
 
-		self.card_display = CardDisplay(self)  # create area to display cards
-		self.card_display.pack(side="right", fill="both", expand=True)
+		### LAYOUT ###
 
-		self.menu_bar = MenuBar(self)  # create menu bar
+		# create menu bar
+		self.menu_bar = MenuBar(self, self)  
 		self.config(menu=self.menu_bar)
+
+		# use paned window so we can resize each panel using sash
+		self.main_window = tk.PanedWindow(self) 
+		self.main_window.pack(fill="both", expand=True)
+
+		# create video panel
+		self.viewport = Viewport(self, self.main_window)  
+		self.main_window.add(self.viewport)
+
+		# create area to display cards
+		self.card_display = CardDisplay(self, self.main_window)  
+		self.main_window.add(self.card_display)
+
 
 	def setting_update_notify(self, category, setting):
 		"""
