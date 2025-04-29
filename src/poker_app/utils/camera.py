@@ -50,9 +50,8 @@ class Camera():
 			MatLike: An image/frame pulled from the webcam.
 		"""
 
-		ret, frame = self.cam.read()
-		# TODO: should throw error if ret is false
-		return frame
+		active, frame = self.cam.read()
+		return active, frame
 	
 	def release(self):
 		"""
@@ -60,3 +59,11 @@ class Camera():
 		"""
 
 		self.cam.release()
+
+	def reset(self):
+		"""
+		Release the camera resource then recapture it.
+		"""
+		
+		self.cam.release()
+		self.cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)

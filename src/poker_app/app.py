@@ -86,24 +86,34 @@ class App(tk.Tk):
 		"""
 
 		# read image from camera
-		frame = self.cam.read()
-		
-		# scale the image up
-		frame = cv2.resize(frame, (int(frame.shape[1]*1.5), int(frame.shape[0]*1.5)))
-		
-		# use machine learning to detect cards
-		cards = detect_cards(frame)
-		hands, outliers = detect_hands(cards)
-		
-		frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-		annotate(frame, cards) # draw on the frame
+		active, frame = self.cam.read()
 
-		# convert image to tkinter usable format
-		frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
+		cards = []
+		hands = []
+		outliers = []
 
-		# update image shown in viewport
-		self.viewport.swap_buffer(frame)
+		# process frame if camera is active
+		if active:
+			# scale the image up
+			frame = cv2.resize(frame, (int(frame.shape[1]*1.5), int(frame.shape[0]*1.5)))
+			
+			# use machine learning to detect cards
+			cards = detect_cards(frame)
+			hands, outliers = detect_hands(cards)
+			
+			frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+			annotate(frame, cards) # draw on the frame
 
+			# convert image to tkinter usable format
+			frame = ImageTk.PhotoImage(image=Image.fromarray(frame))
+
+			# update image shown in viewport
+			self.viewport.swap_buffer(frame)
+		
+		# reset the camera if its not active
+		else:
+			self.cam.reset()
+		
 		# update canvas with card sprites
 		self.card_display.update(hands, outliers)
 	
