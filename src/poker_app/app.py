@@ -7,6 +7,9 @@ from poker_app.widgets import Viewport, CardDisplay, MenuBar
 from poker_app.utils import Camera, load_sprites
 
 
+# TODO: add ability to choose between multiple cameras in app, and if active camera is disconnected, automatically switch to the other camera if one is available
+
+
 # main app class
 class App(tk.Tk):
 	"""
@@ -47,6 +50,9 @@ class App(tk.Tk):
 			"CLUSTERING": {
 			}
 		}
+		
+		# set speed for scrolling with scroll wheel
+		self.scroll_speed = 2
 		
 		# layout
 		self.viewport = Viewport(self)  # create video panel

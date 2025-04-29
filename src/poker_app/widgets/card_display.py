@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import distinctipy
+import numpy as np
 
 # colours for the hands
 _COLOURS = list(map(distinctipy.get_hex, [(0.0, 1.0, 0.0), (1.0, 0.0, 1.0), (0.0, 0.5, 1.0), (1.0, 0.5, 0.0), (0.5, 0.75, 0.5), (0.39678717264876207, 0.13197211806938614, 0.5819931085974647), (0.827283646369405, 0.0138353214106115, 0.1133231387287158), (0.9473827093671684, 0.5084359241017635, 0.8346452862150692), (0.8164329577113776, 0.9928299927881508, 0.009255363614705248), (0.019434052374008415, 0.5050126764558274, 0.11088395395899864), (0.0, 1.0, 1.0), (0.0, 0.0, 1.0), (0.0, 1.0, 0.5), (0.40589042036593503, 0.22354084754929282, 0.10318437663226065), (0.997383433128567, 0.8260316549965426, 0.48300860517842303)]))
@@ -34,6 +35,15 @@ class CardDisplay(ttk.Frame):
 		# create canvas to draw cards on
 		self.canvas = tk.Canvas(self, bg="#008080")
 		self.canvas.pack(fill="both", expand=True)
+
+		# create scrollbar
+		self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+		self.canvas.configure(yscrollcommand=self.scrollbar.set)
+		self.canvas.bind("<Configure>", lambda _: self.canvas.configure(scrollregion=self.canvas.bbox("all"))) # update scroll region on config event
+		self.scrollbar.place(relx=1, rely=0, relheight=1, anchor="ne")
+		
+		# add mouse scrolling
+		self.canvas.bind("<MouseWheel>", lambda event: self.canvas.yview_scroll(-int(np.sign(event.delta)*master.scroll_speed), "units")) 
 
 	def __draw_cards(self, cards, x, y):
 		"""
@@ -93,3 +103,6 @@ class CardDisplay(ttk.Frame):
 			self.canvas.create_text(x, y, text=f"Outliers:", fill="#808080", font=('Helvetica 20 bold'), anchor="nw")
 			y += self.TITLE_HEIGHT + self.TITLE_BELOW_PAD
 			self.__draw_cards(outliers, x, y)
+
+		# update scroll region for scrollbar
+		self.canvas.configure(scrollregion=self.canvas.bbox("all"))

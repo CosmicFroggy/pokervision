@@ -64,6 +64,6 @@ class Camera():
 		"""
 		Release the camera resource then recapture it.
 		"""
-		
+
 		self.cam.release()
 		self.cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
